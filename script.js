@@ -7,7 +7,8 @@ const retakeBtn = document.getElementById("retakeBtn");
 const uploadBtn = document.getElementById("uploadBtn");
 
 const status = document.getElementById("status");
-const selfieBtn = document.getElementById("selfieBtn");
+const frontBtn = document.getElementById("frontBtn");
+const rearBtn = document.getElementById("rearBtn");
 
 let imageData = "";
 
@@ -170,5 +171,15 @@ status.innerHTML = "❌ Upload failed.";
     }
 
 }
+
+frontBtn.addEventListener("click", async () => {
+    currentCamera = "user";
+    await startCamera();
+});
+
+rearBtn.addEventListener("click", async () => {
+    currentCamera = "environment";
+    await startCamera();
+});
 
 startCamera();

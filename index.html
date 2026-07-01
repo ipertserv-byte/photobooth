@@ -1,26 +1,50 @@
-<h1>PERTSERV</h1>
-<h2>15th Anniversary Photobooth 🎉</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
 
-<video id="video" autoplay playsinline></video>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<canvas id="canvas" style="display:none;"></canvas>
+<title>PERTSERV Photobooth</title>
 
-<img id="preview" style="display:none;">
+<link rel="stylesheet" href="style.css">
 
-<div class="buttons">
+</head>
 
-    <button id="captureBtn">
-        📸 Take Photo
-    </button>
+<body>
 
-    <button id="retakeBtn" style="display:none;">
-        🔄 Retake
-    </button>
+<div class="container">
 
-    <button id="uploadBtn" style="display:none;">
-        ☁️ Upload
-    </button>
+    <h1>PERTSERV</h1>
+    <h2>15th Anniversary Photobooth 🎉</h2>
+
+    <video id="video" autoplay playsinline></video>
+
+    <canvas id="canvas" style="display:none;"></canvas>
+
+    <img id="preview" style="display:none;">
+
+    <div class="buttons">
+
+        <button id="captureBtn">
+            📸 Take Photo
+        </button>
+
+        <button id="retakeBtn" style="display:none;">
+            🔄 Retake
+        </button>
+
+        <button id="uploadBtn" style="display:none;">
+            ☁️ Upload
+        </button>
+
+    </div>
+
+    <p id="status"></p>
 
 </div>
 
-<p id="status"></p>
+<script src="script.js"></script>
+
+</body>
+</html>

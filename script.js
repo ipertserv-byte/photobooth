@@ -10,18 +10,25 @@ const status = document.getElementById("status");
 
 let imageData = "";
 
+let currentCamera = "environment";
+let currentStream = null;
+
 async function startCamera() {
 
     try {
 
-        const stream = await navigator.mediaDevices.getUserMedia({
-            video: {
-                let currentCamera = "environment";
-            },
-            audio: false
-        });
+        if (currentStream) {
+    currentStream.getTracks().forEach(track => track.stop());
+}
 
-        video.srcObject = stream;
+currentStream = await navigator.mediaDevices.getUserMedia({
+    video: {
+        facingMode: currentCamera
+    },
+    audio: false
+});
+
+video.srcObject = currentStream;
 
     } catch (error) {
 

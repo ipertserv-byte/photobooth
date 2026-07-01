@@ -182,4 +182,9 @@ status.innerHTML = "❌ Upload failed.";
 
 }
 
+document.addEventListener("click", async () => {
+    console.log("manual camera test");
+    await startCamera();
+});
+
 startCamera();

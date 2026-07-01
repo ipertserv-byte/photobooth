@@ -1,41 +1,82 @@
 const video = document.getElementById("video");
 const canvas = document.getElementById("canvas");
 const preview = document.getElementById("preview");
+
 const captureBtn = document.getElementById("captureBtn");
+const retakeBtn = document.getElementById("retakeBtn");
+const uploadBtn = document.getElementById("uploadBtn");
+
 const status = document.getElementById("status");
 
-// Open the camera
-async function startCamera() {
-    try {
+async function startCamera(){
+
+    try{
+
         const stream = await navigator.mediaDevices.getUserMedia({
-            video: {
-                facingMode: "environment"
+
+            video:{
+                facingMode:"environment"
             },
-            audio: false
+
+            audio:false
+
         });
 
         video.srcObject = stream;
 
-    } catch (err) {
-        status.innerHTML = "❌ Unable to access camera.";
-        console.error(err);
+    }catch(error){
+
+        status.innerHTML="❌ Camera access denied.";
+
     }
+
 }
 
-// Capture photo
-captureBtn.addEventListener("click", () => {
+captureBtn.addEventListener("click",()=>{
 
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
+    canvas.width=video.videoWidth;
+    canvas.height=video.videoHeight;
 
-    const ctx = canvas.getContext("2d");
+    const ctx=canvas.getContext("2d");
 
-    ctx.drawImage(video, 0, 0);
+    ctx.drawImage(video,0,0);
 
-    preview.src = canvas.toDataURL("image/png");
-    preview.style.display = "block";
+    preview.src=canvas.toDataURL("image/png");
 
-    status.innerHTML = "✅ Photo captured!";
+    preview.style.display="block";
+
+    video.style.display="none";
+
+    captureBtn.style.display="none";
+
+    retakeBtn.style.display="inline-block";
+
+    uploadBtn.style.display="inline-block";
+
+    status.innerHTML="📷 Photo captured!";
+
+});
+
+retakeBtn.addEventListener("click",()=>{
+
+    preview.style.display="none";
+
+    video.style.display="block";
+
+    captureBtn.style.display="inline-block";
+
+    retakeBtn.style.display="none";
+
+    uploadBtn.style.display="none";
+
+    status.innerHTML="";
+
+});
+
+uploadBtn.addEventListener("click",()=>{
+
+    alert("Upload feature coming next!");
+
 });
 
 startCamera();

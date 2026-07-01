@@ -8,75 +8,114 @@ const uploadBtn = document.getElementById("uploadBtn");
 
 const status = document.getElementById("status");
 
-async function startCamera(){
+let imageData = "";
 
-    try{
+async function startCamera() {
+
+    try {
 
         const stream = await navigator.mediaDevices.getUserMedia({
-
-            video:{
-                facingMode:"environment"
+            video: {
+                facingMode: "environment"
             },
-
-            audio:false
-
+            audio: false
         });
 
         video.srcObject = stream;
 
-    }catch(error){
+    } catch (error) {
 
-        status.innerHTML="❌ Camera access denied.";
+        status.innerHTML = "❌ Camera access denied.";
 
     }
 
 }
 
-captureBtn.addEventListener("click",()=>{
+captureBtn.addEventListener("click", () => {
 
-    canvas.width=video.videoWidth;
-    canvas.height=video.videoHeight;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
 
-    const ctx=canvas.getContext("2d");
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(video, 0, 0);
 
-    ctx.drawImage(video,0,0);
+    imageData = canvas.toDataURL("image/jpeg");
 
-    preview.src=canvas.toDataURL("image/png");
+    preview.src = imageData;
 
-    preview.style.display="block";
+    preview.style.display = "block";
+    video.style.display = "none";
 
-    video.style.display="none";
+    captureBtn.style.display = "none";
+    retakeBtn.style.display = "inline-block";
+    uploadBtn.style.display = "inline-block";
 
-    captureBtn.style.display="none";
-
-    retakeBtn.style.display="inline-block";
-
-    uploadBtn.style.display="inline-block";
-
-    status.innerHTML="📷 Photo captured!";
+    status.innerHTML = "📸 Photo captured!";
 
 });
 
-retakeBtn.addEventListener("click",()=>{
+retakeBtn.addEventListener("click", () => {
 
-    preview.style.display="none";
+    preview.style.display = "none";
+    video.style.display = "block";
 
-    video.style.display="block";
+    captureBtn.style.display = "inline-block";
+    retakeBtn.style.display = "none";
+    uploadBtn.style.display = "none";
 
-    captureBtn.style.display="inline-block";
-
-    retakeBtn.style.display="none";
-
-    uploadBtn.style.display="none";
-
-    status.innerHTML="";
+    status.innerHTML = "";
 
 });
 
-uploadBtn.addEventListener("click",()=>{
+uploadBtn.addEventListener("click", uploadPhoto);
 
-    alert("Upload feature coming next!");
+async function uploadPhoto() {
 
-});
+    status.innerHTML = "☁️ Uploading...";
+
+    const blob = await (await fetch(imageData)).blob();
+
+    const formData = new FormData();
+
+    formData.append("file", blob);
+    formData.append("upload_preset", "photobooth");
+
+    try {
+
+        const response = await fetch(
+            "https://api.cloudinary.com/v1_1/sfnq6tmp/image/upload",
+            {
+                method: "POST",
+                body: formData
+            }
+        );
+
+        const data = await response.json();
+
+        console.log(data);
+
+        if (data.secure_url) {
+
+            status.innerHTML = "✅ Upload successful!";
+
+            alert("Photo uploaded successfully!");
+
+        } else {
+
+            status.innerHTML = "❌ Upload failed.";
+
+            console.log(data);
+
+        }
+
+    } catch (error) {
+
+        console.error(error);
+
+        status.innerHTML = "❌ Upload error.";
+
+    }
+
+}
 
 startCamera();

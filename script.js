@@ -20,26 +20,31 @@ async function startCamera() {
 
     try {
 
+        console.log("starting camera...");
+
         if (currentStream) {
             currentStream.getTracks().forEach(track => track.stop());
         }
 
-        currentStream = await navigator.mediaDevices.getUserMedia({
+        const constraints = {
             video: {
-                facingMode: currentCamera
+                facingMode: { ideal: currentCamera }
             },
             audio: false
-        });
+        };
+
+        currentStream = await navigator.mediaDevices.getUserMedia(constraints);
 
         video.srcObject = currentStream;
 
-        video.onloadedmetadata = () => {
-            video.play();
-        };
+        await video.play();
+
+        console.log("camera started successfully");
 
     } catch (error) {
 
-        status.innerHTML = "❌ Camera access denied.";
+        console.error("camera error:", error);
+        status.innerHTML = "❌ Camera blocked: " + error.message;
 
     }
 }
@@ -182,7 +187,7 @@ status.innerHTML = "❌ Upload failed.";
 
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+
     startCamera();
 });
-startCamera();
+

@@ -6,9 +6,6 @@ const captureBtn = document.getElementById("captureBtn");
 const retakeBtn = document.getElementById("retakeBtn");
 const uploadBtn = document.getElementById("uploadBtn");
 
-const selfieBtn = document.getElementById("selfieBtn");
-const rearBtn = document.getElementById("rearBtn");
-
 const status = document.getElementById("status");
 
 let imageData = "";
@@ -20,34 +17,26 @@ async function startCamera() {
 
     try {
 
-        console.log("starting camera...");
-
         if (currentStream) {
             currentStream.getTracks().forEach(track => track.stop());
         }
 
-        const constraints = {
+        currentStream = await navigator.mediaDevices.getUserMedia({
             video: {
-                facingMode: { ideal: currentCamera }
+                facingMode: currentCamera
             },
             audio: false
-        };
-
-        currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+        });
 
         video.srcObject = currentStream;
 
-        await video.play();
-
-        console.log("camera started successfully");
-
     } catch (error) {
 
-        console.error("camera error:", error);
-        status.innerHTML = "❌ Camera blocked: " + error.message;
+        status.innerHTML = "❌ Camera access denied.";
 
     }
 }
+
 captureBtn.addEventListener("click", () => {
 
     canvas.width = video.videoWidth;
@@ -89,21 +78,6 @@ retakeBtn.addEventListener("click", async () => {
 
 uploadBtn.addEventListener("click", uploadPhoto);
 
-if (selfieBtn) {
-    selfieBtn.addEventListener("click", async () => {
-        currentCamera = "user";
-        status.innerHTML = "🤳 Selfie mode";
-        await startCamera();
-    });
-}
-
-if (rearBtn) {
-    rearBtn.addEventListener("click", async () => {
-        currentCamera = "environment";
-        status.innerHTML = "📷 Rear camera mode";
-        await startCamera();
-    });
-}
 
 async function uploadPhoto() {
 
@@ -185,6 +159,4 @@ status.innerHTML = "❌ Upload failed.";
 
 }
 
-
- startCamera();
-
+startCamera();

@@ -1,35 +1,26 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PERTSERV Photobooth</title>
-<link rel="stylesheet" href="style.css">
-</head>
-
-<body>
-
-<div class="container">
-
 <h1>PERTSERV</h1>
-
 <h2>15th Anniversary Photobooth 🎉</h2>
 
 <video id="video" autoplay playsinline></video>
 
 <canvas id="canvas" style="display:none;"></canvas>
 
-<button id="captureBtn">
-📸 Take Photo
-</button>
+<img id="preview" style="display:none;">
 
-<img id="preview">
+<div class="buttons">
 
-<p id="status"></p>
+    <button id="captureBtn">
+        📸 Take Photo
+    </button>
+
+    <button id="retakeBtn" style="display:none;">
+        🔄 Retake
+    </button>
+
+    <button id="uploadBtn" style="display:none;">
+        ☁️ Upload
+    </button>
 
 </div>
 
-<script src="script.js"></script>
-
-</body>
-</html>
+<p id="status"></p>

@@ -18,24 +18,23 @@ async function startCamera() {
     try {
 
         if (currentStream) {
-    currentStream.getTracks().forEach(track => track.stop());
-}
+            currentStream.getTracks().forEach(track => track.stop());
+        }
 
-currentStream = await navigator.mediaDevices.getUserMedia({
-    video: {
-        facingMode: currentCamera
-    },
-    audio: false
-});
+        currentStream = await navigator.mediaDevices.getUserMedia({
+            video: {
+                facingMode: currentCamera
+            },
+            audio: false
+        });
 
-video.srcObject = currentStream;
+        video.srcObject = currentStream;
 
     } catch (error) {
 
         status.innerHTML = "❌ Camera access denied.";
 
     }
-
 }
 
 captureBtn.addEventListener("click", () => {
@@ -61,7 +60,7 @@ captureBtn.addEventListener("click", () => {
 
 });
 
-retakeBtn.addEventListener("click", () => {
+retakeBtn.addEventListener("click", async () => {
 
     preview.style.display = "none";
     video.style.display = "block";
@@ -72,16 +71,36 @@ retakeBtn.addEventListener("click", () => {
 
     status.innerHTML = "";
 
+    imageData = "";
+
+    await startCamera(); // ensures camera resets cleanly
 });
 
 uploadBtn.addEventListener("click", uploadPhoto);
 
+
 async function uploadPhoto() {
+
+    if (!imageData) {
+        status.innerHTML = "⚠️ No photo to upload.";
+        return;
+    }
 
     status.innerHTML = "☁️ Uploading...";
 
-    const blob = await (await fetch(imageData)).blob();
+    const byteString = atob(imageData.split(",")[1]);
+const mimeString = imageData.split(",")[0].split(":")[1].split(";")[0];
 
+const ab = new ArrayBuffer(byteString.length);
+const ia = new Uint8Array(ab);
+
+for (let i = 0; i < byteString.length; i++) {
+    ia[i] = byteString.charCodeAt(i);
+}
+
+const blob = new Blob([ab], { type: mimeString });
+
+    
     const formData = new FormData();
 
     formData.append("file", blob);
@@ -103,17 +122,32 @@ async function uploadPhoto() {
 
         if (data.secure_url) {
 
-            status.innerHTML = "✅ Upload successful!";
+    alert("Photo uploaded successfully!");
+status.innerHTML = "✅ Upload successful!";
 
-            alert("Photo uploaded successfully!");
+setTimeout(() => {
+    status.innerHTML = "";
+}, 2000);
 
-        } else {
+    preview.style.display = "none";
+    video.style.display = "block";
 
-            status.innerHTML = "❌ Upload failed.";
+    captureBtn.style.display = "inline-block";
+    retakeBtn.style.display = "none";
+    uploadBtn.style.display = "none";
 
-            console.log(data);
+    imageData = "";
 
-        }
+    setTimeout(() => {
+    startCamera();
+}, 300);
+
+} else {
+
+    console.log("Upload failed:", data);
+status.innerHTML = "❌ Upload failed.";
+
+}
 
     } catch (error) {
 

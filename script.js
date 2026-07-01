@@ -6,6 +6,9 @@ const captureBtn = document.getElementById("captureBtn");
 const retakeBtn = document.getElementById("retakeBtn");
 const uploadBtn = document.getElementById("uploadBtn");
 
+const selfieBtn = document.getElementById("selfieBtn");
+const rearBtn = document.getElementById("rearBtn");
+
 const status = document.getElementById("status");
 
 let imageData = "";
@@ -78,6 +81,23 @@ retakeBtn.addEventListener("click", async () => {
 
 uploadBtn.addEventListener("click", uploadPhoto);
 
+selfieBtn.addEventListener("click", async () => {
+
+    currentCamera = "user";
+    status.innerHTML = "🤳 Selfie mode";
+
+    await startCamera();
+
+});
+
+rearBtn.addEventListener("click", async () => {
+
+    currentCamera = "environment";
+    status.innerHTML = "📷 Rear camera mode";
+
+    await startCamera();
+
+});
 
 async function uploadPhoto() {
 

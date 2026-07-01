@@ -57,7 +57,7 @@ captureBtn.addEventListener("click", () => {
     captureBtn.style.display = "none";
     retakeBtn.style.display = "inline-block";
     uploadBtn.style.display = "inline-block";
-    <button id="selfieBtn">Switch Camera 🤳</button>
+    
 
     status.innerHTML = "📸 Photo captured!";
 
@@ -71,7 +71,7 @@ retakeBtn.addEventListener("click", async () => {
     captureBtn.style.display = "inline-block";
     retakeBtn.style.display = "none";
     uploadBtn.style.display = "none";
-    <button id="selfieBtn">Switch Camera 🤳</button>
+    
 
     status.innerHTML = "";
 
@@ -84,14 +84,6 @@ uploadBtn.addEventListener("click", uploadPhoto);
 
 
 async function uploadPhoto() {
-selfieBtn.addEventListener("click", async () => {
-
-    // toggle camera mode
-    currentCamera = currentCamera === "environment" ? "user" : "environment";
-
-    // restart camera with new setting
-    await startCamera();
-});
 
     
     if (!imageData) {

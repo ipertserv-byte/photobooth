@@ -188,6 +188,5 @@ status.innerHTML = "❌ Upload failed.";
 }
 
 
-    startCamera();
-});
+ startCamera();
 

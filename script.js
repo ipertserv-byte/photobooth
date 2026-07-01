@@ -89,23 +89,21 @@ retakeBtn.addEventListener("click", async () => {
 
 uploadBtn.addEventListener("click", uploadPhoto);
 
-selfieBtn.addEventListener("click", async () => {
+if (selfieBtn) {
+    selfieBtn.addEventListener("click", async () => {
+        currentCamera = "user";
+        status.innerHTML = "🤳 Selfie mode";
+        await startCamera();
+    });
+}
 
-    currentCamera = "user";
-    status.innerHTML = "🤳 Selfie mode";
-
-    await startCamera();
-
-});
-
-rearBtn.addEventListener("click", async () => {
-
-    currentCamera = "environment";
-    status.innerHTML = "📷 Rear camera mode";
-
-    await startCamera();
-
-});
+if (rearBtn) {
+    rearBtn.addEventListener("click", async () => {
+        currentCamera = "environment";
+        status.innerHTML = "📷 Rear camera mode";
+        await startCamera();
+    });
+}
 
 async function uploadPhoto() {
 

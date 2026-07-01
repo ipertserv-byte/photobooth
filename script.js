@@ -33,13 +33,16 @@ async function startCamera() {
 
         video.srcObject = currentStream;
 
+        video.onloadedmetadata = () => {
+            video.play();
+        };
+
     } catch (error) {
 
         status.innerHTML = "❌ Camera access denied.";
 
     }
 }
-
 captureBtn.addEventListener("click", () => {
 
     canvas.width = video.videoWidth;

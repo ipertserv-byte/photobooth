@@ -3,205 +3,157 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Photobooth</title>
+<title>Live Photobooth</title>
 
 <style>
-    body {
-        margin: 0;
+    body{
+        margin:0;
         font-family: Arial, sans-serif;
-        background: #111;
-        color: white;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+        background:#f3f5f7;
+        display:flex;
+        justify-content:center;
     }
 
-    h1 {
-        margin: 15px 0;
+    .app{
+        width:100%;
+        max-width:420px;
+        background:white;
+        min-height:100vh;
+        padding:20px 15px;
+        box-sizing:border-box;
     }
 
-    video {
-        width: 90%;
-        max-width: 500px;
-        border-radius: 10px;
-        background: black;
+    h1{
+        text-align:center;
+        margin:10px 0 0;
+        font-size:26px;
+        color:#1f4f9a;
     }
 
-    canvas {
-        display: none;
+    .subtitle{
+        text-align:center;
+        font-size:14px;
+        color:#666;
+        margin-bottom:15px;
     }
 
-    #preview {
-        margin-top: 10px;
-        width: 90%;
-        max-width: 500px;
-        border-radius: 10px;
-        display: none;
+    .preview{
+        width:100%;
+        border-radius:16px;
+        overflow:hidden;
+        background:black;
+        aspect-ratio: 3/4;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        margin-bottom:15px;
     }
 
-    .controls {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 10px;
-        margin: 15px 0;
+    video{
+        width:100%;
+        height:100%;
+        object-fit:cover;
     }
 
-    button {
-        padding: 12px 16px;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 14px;
-        background: #333;
-        color: white;
+    canvas{ display:none; }
+
+    button{
+        width:100%;
+        padding:16px;
+        margin:8px 0;
+        border:none;
+        border-radius:12px;
+        font-size:16px;
+        font-weight:bold;
+        cursor:pointer;
     }
 
-    button:hover {
-        background: #555;
+    .btn-rear{
+        background:#0d3b78;
+        color:white;
     }
 
-    .camera-select {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 10px;
+    .btn-front{
+        background:#124a92;
+        color:white;
     }
 
-    .camera-select button {
-        flex: 1;
-        min-width: 120px;
+    .btn-capture{
+        background:#1e7bff;
+        color:white;
     }
 
-    .active {
-        background: #00aaff !important;
+    .status{
+        text-align:center;
+        font-size:13px;
+        color:#666;
+        margin-top:10px;
     }
-
-    #status {
-        margin-top: 10px;
-        font-size: 14px;
-        opacity: 0.8;
-    }
-
-    .grid-options {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 10px;
-    }
-
 </style>
 </head>
 
 <body>
 
-<h1>Photobooth</h1>
+<div class="app">
 
-<div class="camera-select">
-    <button id="rearBtn" class="active">Rear Camera</button>
-    <button id="frontBtn">Selfie Camera</button>
+    <h1>PERTSERV / 15th Anniversary</h1>
+    <div class="subtitle">Live Photobooth</div>
+
+    <div class="preview">
+        <video id="video" autoplay playsinline></video>
+    </div>
+
+    <button class="btn-rear" id="rearBtn">📷 Rear Camera</button>
+    <button class="btn-front" id="frontBtn">🤳 Selfie Camera</button>
+    <button class="btn-capture" id="captureBtn">📸 Capture</button>
+
+    <canvas id="canvas"></canvas>
+
+    <div class="status" id="status">Ready</div>
+
 </div>
-
-<div class="grid-options">
-    <button id="singleMode" class="active">Single Photo</button>
-    <button id="fourMode">4 Photo Grid</button>
-</div>
-
-<video id="video" autoplay playsinline></video>
-<canvas id="canvas"></canvas>
-
-<img id="preview" />
-
-<div class="controls">
-    <button id="captureBtn">Capture</button>
-    <button id="retakeBtn">Retake</button>
-    <button id="uploadBtn">Upload</button>
-</div>
-
-<div id="status">Ready</div>
 
 <script>
 const video = document.getElementById("video");
 const canvas = document.getElementById("canvas");
-const preview = document.getElementById("preview");
+const status = document.getElementById("status");
 
 const rearBtn = document.getElementById("rearBtn");
 const frontBtn = document.getElementById("frontBtn");
-
 const captureBtn = document.getElementById("captureBtn");
-const retakeBtn = document.getElementById("retakeBtn");
-const uploadBtn = document.getElementById("uploadBtn");
 
-const status = document.getElementById("status");
+let stream;
+let currentFacing = "environment";
 
-const singleMode = document.getElementById("singleMode");
-const fourMode = document.getElementById("fourMode");
-
-let currentStream;
-let currentCamera = "environment";
-let mode = "single";
-
-async function startCamera(facingMode) {
-    if (currentStream) {
-        currentStream.getTracks().forEach(track => track.stop());
+async function startCamera(facingMode){
+    if(stream){
+        stream.getTracks().forEach(t => t.stop());
     }
 
-    currentStream = await navigator.mediaDevices.getUserMedia({
+    stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode }
     });
 
-    video.srcObject = currentStream;
-    currentCamera = facingMode;
-    status.textContent = "Camera started";
+    video.srcObject = stream;
+    currentFacing = facingMode;
+    status.textContent = "Camera: " + facingMode;
 }
 
-rearBtn.onclick = () => {
-    rearBtn.classList.add("active");
-    frontBtn.classList.remove("active");
-    startCamera("environment");
-};
-
-frontBtn.onclick = () => {
-    frontBtn.classList.add("active");
-    rearBtn.classList.remove("active");
-    startCamera("user");
-};
-
-singleMode.onclick = () => {
-    mode = "single";
-    singleMode.classList.add("active");
-    fourMode.classList.remove("active");
-};
-
-fourMode.onclick = () => {
-    mode = "four";
-    fourMode.classList.add("active");
-    singleMode.classList.remove("active");
-};
+rearBtn.onclick = () => startCamera("environment");
+frontBtn.onclick = () => startCamera("user");
 
 captureBtn.onclick = () => {
-    const ctx = canvas.getContext("2d");
-
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
 
+    const ctx = canvas.getContext("2d");
     ctx.drawImage(video, 0, 0);
 
-    const imageData = canvas.toDataURL("image/png");
+    const img = canvas.toDataURL("image/png");
 
-    preview.src = imageData;
-    preview.style.display = "block";
-
-    status.textContent = mode === "single"
-        ? "Single photo captured"
-        : "Grid mode ready (extend logic for 4 shots)";
-};
-
-retakeBtn.onclick = () => {
-    preview.style.display = "none";
-    status.textContent = "Retake ready";
-};
-
-uploadBtn.onclick = () => {
-    status.textContent = "Upload feature placeholder (connect Cloudflare later)";
+    // simple preview (replace if you want gallery upload)
+    const newWindow = window.open();
+    newWindow.document.write(`<img src="${img}" style="width:100%">`);
 };
 
 startCamera("environment");

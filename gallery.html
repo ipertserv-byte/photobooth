@@ -1,132 +1,122 @@
-const API = "https://photobooth-api.ipertserv.workers.dev";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-let photos = [];
-let currentIndex = 0;
+<title>PERTSERV 15th Anniversary Live Gallery</title>
 
-const featured = document.getElementById("featuredPhoto");
-const filmstrip = document.getElementById("filmstrip");
-const counter = document.getElementById("photoCount");
-const badge = document.getElementById("badge");
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
 
-async function loadPhotos() {
+body{
+    background:#000;
+    color:#fff;
+    font-family:Arial,Helvetica,sans-serif;
+    overflow:hidden;
+}
 
-    try {
+.header{
+    position:absolute;
+    top:20px;
+    left:0;
+    width:100%;
+    text-align:center;
+    z-index:10;
+}
 
-        const res = await fetch(API);
-        const data = await res.json();
+.header h1{
+    font-size:48px;
+}
 
-        if (!Array.isArray(data) || !data.length) return;
+.header h2{
+    font-size:26px;
+    margin-top:8px;
+    color:#FFD700;
+}
 
-        // Detect new uploads
-        if (!photos.length) {
+#slideshow{
+    width:100vw;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
 
-            photos = data;
+#photo{
+    max-width:95vw;
+    max-height:90vh;
+    border-radius:20px;
+    box-shadow:0 0 30px rgba(255,255,255,.25);
+    transition:opacity .8s;
+}
 
-            currentIndex = photos.length - 1; // Start with the newest photo
+#loading{
+    font-size:30px;
+}
+</style>
+</head>
 
-            showFeatured(false);
+<body>
 
-        } else if (data.length > photos.length) {
+<div class="header">
+    <h1>PERTSERV</h1>
+    <h2>15th Anniversary Live Photobooth 📸</h2>
+</div>
 
-            photos = data;
+<div id="slideshow">
+    <div id="loading">Loading photos...</div>
+</div>
 
-            currentIndex = photos.length - 1;
+<script>
 
-            showFeatured(true);
+const API="https://photobooth-api.ipertserv.workers.dev";
 
-        } else {
+let photos=[];
+let index=0;
 
-            photos = data;
+async function loadPhotos(){
+
+    try{
+
+        const res=await fetch(API);
+        const data=await res.json();
+
+        if(Array.isArray(data) && data.length){
+
+            photos=data;
+
+            if(!document.getElementById("photo")){
+                showPhoto();
+            }
 
         }
 
-        counter.textContent = photos.length;
-
-        renderFilmstrip();
-
-    }
-
-    catch(err){
-
-        console.log(err);
-
+    }catch(e){
+        console.log(e);
     }
 
 }
 
-function showFeatured(isNew = false){
+function showPhoto(){
 
     if(!photos.length) return;
 
-    featured.style.opacity = 0;
+    const slideshow=document.getElementById("slideshow");
 
-    setTimeout(()=>{
+    slideshow.innerHTML="";
 
-        featured.src = photos[currentIndex].url;
+    const img=document.createElement("img");
 
-        featured.style.opacity = 1;
+    img.id="photo";
 
-    },300);
+    img.src=photos[index].url;
 
-    if(isNew){
-
-        badge.style.display = "block";
-
-        setTimeout(()=>{
-
-            badge.style.display = "none";
-
-        },5000);
-
-    }
-
-}
-
-function renderFilmstrip() {
-
-    filmstrip.innerHTML = "";
-
-    if (!photos.length) return;
-
-    const visible = 6;
-
-    let start = currentIndex - 2;
-
-    if (start < 0) {
-        start = 0;
-    }
-
-    if (start > photos.length - visible) {
-        start = Math.max(0, photos.length - visible);
-    }
-
-    const end = Math.min(start + visible, photos.length);
-
-    for (let i = start; i < end; i++) {
-
-        const img = document.createElement("img");
-
-        img.src = photos[i].url;
-
-        img.className = "thumb";
-
-        if (i === currentIndex) {
-            img.classList.add("active");
-        }
-
-        img.onclick = () => {
-
-            currentIndex = i;
-
-            showFeatured();
-
-            renderFilmstrip();
-
-        };
-
-        filmstrip.appendChild(img);
-
-    }
+    slideshow.appendChild(img);
 
 }
 
@@ -134,40 +124,23 @@ function nextPhoto(){
 
     if(!photos.length) return;
 
-    currentIndex++;
+    index++;
 
-    if(currentIndex>=photos.length){
-
-        currentIndex=0;
-
+    if(index>=photos.length){
+        index=0;
     }
 
-    showFeatured();
-
-    renderFilmstrip();
+    showPhoto();
 
 }
-
-document.getElementById("nextBtn").onclick=nextPhoto;
-
-document.getElementById("prevBtn").onclick=()=>{
-
-    currentIndex--;
-
-    if(currentIndex<0){
-
-        currentIndex=photos.length-1;
-
-    }
-
-    showFeatured();
-
-    renderFilmstrip();
-
-};
 
 loadPhotos();
 
 setInterval(loadPhotos,5000);
 
-setInterval(nextPhoto,5000);
+setInterval(nextPhoto,3000);
+
+</script>
+
+</body>
+</html>

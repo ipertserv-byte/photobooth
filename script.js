@@ -13,11 +13,14 @@ const status = document.getElementById("status");
 
 let currentStream = null;
 let currentCamera = "environment";
+let imageData = "";
 
-// Start Camera
+// =====================
+// START CAMERA
+// =====================
 async function startCamera(camera) {
 
-    // Stop previous stream
+    // Stop previous camera
     if (currentStream) {
         currentStream.getTracks().forEach(track => track.stop());
     }
@@ -35,7 +38,7 @@ async function startCamera(camera) {
 
     } catch (err) {
 
-        // Fallback to any available camera
+        // Fallback if requested camera doesn't exist
         currentStream = await navigator.mediaDevices.getUserMedia({
             video: true,
             audio: false
@@ -49,7 +52,15 @@ async function startCamera(camera) {
 
     await video.play();
 
-    // Reset UI
+    // Wait until video is ready
+    await new Promise(resolve => {
+        if (video.readyState >= 2) {
+            resolve();
+        } else {
+            video.onloadeddata = () => resolve();
+        }
+    });
+
     video.style.display = "block";
     preview.style.display = "none";
 
@@ -60,20 +71,23 @@ async function startCamera(camera) {
     status.textContent = "";
 }
 
-// Rear Camera
+// =====================
+// CAMERA BUTTONS
+// =====================
 rearBtn.addEventListener("click", () => {
     startCamera("environment");
 });
 
-// Front Camera
 frontBtn.addEventListener("click", () => {
     startCamera("user");
 });
 
-// Capture
+// =====================
+// CAPTURE
+// =====================
 captureBtn.addEventListener("click", () => {
 
-    if (video.videoWidth === 0 || video.videoHeight === 0) {
+    if (!video.videoWidth || !video.videoHeight) {
         status.textContent = "Camera is still loading...";
         return;
     }
@@ -85,7 +99,9 @@ captureBtn.addEventListener("click", () => {
 
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-    preview.src = canvas.toDataURL("image/jpeg");
+    imageData = canvas.toDataURL("image/jpeg", 0.95);
+
+    preview.src = imageData;
 
     preview.onload = () => {
 
@@ -101,19 +117,34 @@ captureBtn.addEventListener("click", () => {
 
 });
 
-// Retake
-retakeBtn.addEventListener("click", async () => {
+// =====================
+// RETAKE
+// =====================
+retakeBtn.addEventListener("click", () => {
 
-    await startCamera(currentCamera);
+    preview.src = "";
+    preview.style.display = "none";
+
+    video.style.display = "block";
+
+    captureBtn.style.display = "inline-block";
+    retakeBtn.style.display = "none";
+    uploadBtn.style.display = "none";
+
+    status.textContent = "";
 
 });
 
-// Upload (Coming Next)
+// =====================
+// UPLOAD
+// =====================
 uploadBtn.addEventListener("click", () => {
 
-    alert("Upload feature will be added in the next step.");
+    alert("Next step: Cloudinary Upload");
 
 });
 
-// Start Camera
+// =====================
+// START APP
+// =====================
 startCamera(currentCamera);

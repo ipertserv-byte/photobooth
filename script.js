@@ -17,61 +17,70 @@ let currentCamera = "environment";
 // Start camera
 async function startCamera(camera) {
 
-    if(currentStream){
+    // Stop previous camera
+    if (currentStream) {
         currentStream.getTracks().forEach(track => track.stop());
     }
 
-    try{
+    try {
 
         currentStream = await navigator.mediaDevices.getUserMedia({
-            video:{
-                facingMode: camera
+            video: {
+                facingMode: {
+                    ideal: camera
+                }
             },
-            audio:false
+            audio: false
         });
 
-        video.srcObject = currentStream;
-        currentCamera = camera;
+    } catch (err) {
 
-        video.style.display = "block";
-        preview.style.display = "none";
-
-        captureBtn.style.display = "inline-block";
-        retakeBtn.style.display = "none";
-        uploadBtn.style.display = "none";
-
-        status.textContent = "";
-
-    }catch(err){
-
-        console.error(err);
-        status.textContent = "Unable to access camera.";
+        // Fallback to any available camera
+        currentStream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: false
+        });
 
     }
 
+    currentCamera = camera;
+
+    video.srcObject = currentStream;
+
+    await video.play();
+
+    video.style.display = "block";
+    preview.style.display = "none";
+
+    captureBtn.style.display = "inline-block";
+    retakeBtn.style.display = "none";
+    uploadBtn.style.display = "none";
+
+    status.textContent = "";
 }
 
-// Rear camera
-rearBtn.onclick = () => {
+// Camera buttons
+rearBtn.addEventListener("click", () => {
     startCamera("environment");
-};
+});
 
-// Front camera
-frontBtn.onclick = () => {
+frontBtn.addEventListener("click", () => {
     startCamera("user");
-};
+});
 
-// Start rear camera automatically
-startCamera("environment");
+// Capture photo
+captureBtn.addEventListener("click", () => {
 
-captureBtn.onclick = () => {
-
-    const context = canvas.getContext("2d");
+    if (video.videoWidth === 0) {
+        status.textContent = "Camera is still loading...";
+        return;
+    }
 
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
 
-    context.drawImage(video, 0, 0);
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
     preview.src = canvas.toDataURL("image/jpeg");
 
@@ -82,4 +91,21 @@ captureBtn.onclick = () => {
     retakeBtn.style.display = "inline-block";
     uploadBtn.style.display = "inline-block";
 
-};
+    status.textContent = "Photo captured!";
+});
+
+// Retake
+retakeBtn.addEventListener("click", () => {
+
+    video.style.display = "block";
+    preview.style.display = "none";
+
+    captureBtn.style.display = "inline-block";
+    retakeBtn.style.display = "none";
+    uploadBtn.style.display = "none";
+
+    status.textContent = "";
+});
+
+// Start camera
+startCamera(currentCamera);

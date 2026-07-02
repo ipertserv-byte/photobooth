@@ -19,31 +19,21 @@ let captureMode = "single";
 let gridShots = [];
 const maxShots = 4;
 
-// =========================
 // START CAMERA
-// =========================
 async function startCamera(camera = "environment") {
-
     try {
-
         if (currentStream) {
             currentStream.getTracks().forEach(track => track.stop());
         }
 
         currentStream = await navigator.mediaDevices.getUserMedia({
-            video: {
-                facingMode: { ideal: camera }
-            },
+            video: { facingMode: { ideal: camera } },
             audio: false
         });
 
         currentCamera = camera;
 
-        if (camera === "user") {
-            video.style.transform = "scaleX(-1)";
-        } else {
-            video.style.transform = "scaleX(1)";
-        }
+        video.style.transform = (camera === "user") ? "scaleX(-1)" : "scaleX(1)";
 
         video.srcObject = currentStream;
         await video.play();
@@ -63,15 +53,11 @@ async function startCamera(camera = "environment") {
     }
 }
 
-// =========================
 // CAMERA SWITCH
-// =========================
 rearBtn.addEventListener("click", () => startCamera("environment"));
 frontBtn.addEventListener("click", () => startCamera("user"));
 
-// =========================
 // MODE SWITCH
-// =========================
 document.getElementById("singleModeBtn").addEventListener("click", () => {
     captureMode = "single";
     gridShots = [];
@@ -84,9 +70,7 @@ document.getElementById("gridModeBtn").addEventListener("click", () => {
     status.textContent = "Grid mode (4 shots)";
 });
 
-// =========================
 // CAPTURE
-// =========================
 captureBtn.addEventListener("click", () => {
 
     if (!video.videoWidth) {
@@ -99,7 +83,6 @@ captureBtn.addEventListener("click", () => {
 
     const ctx = canvas.getContext("2d");
 
-    // mirror only front camera
     if (currentCamera === "user") {
         ctx.save();
         ctx.translate(canvas.width, 0);
@@ -112,9 +95,7 @@ captureBtn.addEventListener("click", () => {
 
     imageData = canvas.toDataURL("image/jpeg", 0.95);
 
-    // =========================
-    // GRID MODE LOGIC
-    // =========================
+    // GRID MODE
     if (captureMode === "grid") {
 
         gridShots.push(imageData);
@@ -124,17 +105,13 @@ captureBtn.addEventListener("click", () => {
         preview.style.display = "none";
         video.style.display = "block";
 
-        if (gridShots.length < maxShots) {
-            return;
-        }
+        if (gridShots.length < maxShots) return;
 
         buildGrid();
         return;
     }
 
-    // =========================
     // SINGLE MODE
-    // =========================
     preview.src = imageData;
 
     preview.style.display = "block";
@@ -147,9 +124,7 @@ captureBtn.addEventListener("click", () => {
     status.textContent = "Photo captured.";
 });
 
-// =========================
-// BUILD GRID FUNCTION
-// =========================
+// BUILD GRID
 function buildGrid() {
 
     const cols = 2;
@@ -208,9 +183,7 @@ function buildGrid() {
     };
 }
 
-// =========================
 // RETAKE
-// =========================
 retakeBtn.addEventListener("click", () => {
 
     preview.src = "";
@@ -226,14 +199,10 @@ retakeBtn.addEventListener("click", () => {
     status.textContent = "";
 });
 
-// =========================
 // UPLOAD (placeholder)
-// =========================
 uploadBtn.addEventListener("click", () => {
     alert("Cloudinary upload will be added next.");
 });
 
-// =========================
 // START
-// =========================
 startCamera();

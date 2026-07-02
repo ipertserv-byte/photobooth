@@ -1,1 +1,109 @@
 
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+    background:#f4f4f4;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+    padding:20px;
+}
+
+.container{
+    width:100%;
+    max-width:500px;
+    background:#fff;
+    border-radius:20px;
+    padding:25px;
+    text-align:center;
+    box-shadow:0 10px 30px rgba(0,0,0,.15);
+}
+
+h1{
+    color:#003366;
+    margin-bottom:8px;
+}
+
+.subtitle{
+    color:#666;
+    margin-bottom:20px;
+}
+
+video,
+img{
+    width:100%;
+    border-radius:15px;
+    background:#000;
+}
+
+#preview{
+    display:none;
+}
+
+.camera-select,
+.buttons{
+    display:flex;
+    gap:10px;
+    margin-top:20px;
+}
+
+.camera-select button,
+.buttons button{
+    flex:1;
+}
+
+button{
+    padding:14px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:16px;
+    font-weight:bold;
+    transition:.2s;
+}
+
+button:hover{
+    transform:translateY(-2px);
+}
+
+#captureBtn{
+    background:#007bff;
+    color:#fff;
+}
+
+#retakeBtn{
+    background:#ffc107;
+}
+
+#uploadBtn{
+    background:#28a745;
+    color:#fff;
+}
+
+#rearBtn,
+#frontBtn{
+    background:#003366;
+    color:white;
+}
+
+#status{
+    margin-top:18px;
+    font-weight:bold;
+    color:#003366;
+    min-height:24px;
+}
+
+@media (max-width:600px){
+
+    .camera-select,
+    .buttons{
+        flex-direction:column;
+    }
+
+}

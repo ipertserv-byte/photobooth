@@ -285,33 +285,21 @@ async function loadPhotos() {
 
 
     function showFeatured(isNew = false){
-
     if(!photos.length) return;
-
     featured.style.opacity = 0;
-
     setTimeout(()=>{
-
         featured.src = photos[currentIndex].url;
-
         featured.style.opacity = 1;
-
+        if(isNew){
+            badge.style.display = "block";
+            setTimeout(()=>{
+                badge.style.display = "none";
+            },5000);
+        }
     },300);
-
-    if(isNew){
-
-        badge.style.display = "block";
-
-        setTimeout(()=>{
-
-            badge.style.display = "none";
-
-        },5000);
-
-    }
-
 }
 
+   
     function renderFilmstrip() {
 
     filmstrip.innerHTML = "";

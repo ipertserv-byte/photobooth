@@ -111,8 +111,14 @@ captureBtn.addEventListener("click", () => {
 
     preview.src = imageData;
 
-    preview.style.display = "block";
-    video.style.display = "none";
+if (currentCamera === "user") {
+    preview.style.transform = "scaleX(-1)";
+} else {
+    preview.style.transform = "scaleX(1)";
+}
+
+preview.style.display = "block";
+video.style.display = "none";
 
     captureBtn.style.display = "none";
     retakeBtn.style.display = "block";

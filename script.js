@@ -36,6 +36,11 @@ async function startCamera(camera = "environment") {
         });
 
         currentCamera = camera;
+        if (camera === "user") {
+    video.style.transform = "scaleX(-1)";
+} else {
+    video.style.transform = "scaleX(1)";
+}
 
         video.srcObject = currentStream;
 
@@ -85,10 +90,16 @@ captureBtn.addEventListener("click", () => {
 
     const ctx = canvas.getContext("2d");
 
-    ctx.drawImage(video, 0, 0);
+    // OPTION 1: always mirrored output
+    ctx.save();
+    ctx.translate(canvas.width, 0);
+    ctx.scale(-1, 1);
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    ctx.restore();
 
     imageData = canvas.toDataURL("image/jpeg", 0.95);
 
+    // Preview is just the output (NO transform)
     preview.src = imageData;
 
     preview.style.display = "block";
@@ -99,7 +110,6 @@ captureBtn.addEventListener("click", () => {
     uploadBtn.style.display = "block";
 
     status.textContent = "Photo captured.";
-
 });
 
 // =========================

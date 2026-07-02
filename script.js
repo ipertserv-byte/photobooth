@@ -21,6 +21,21 @@ let currentStream = null;
 let currentCamera = "environment";
 let imageData = "";
 
+function fixLandscapeVideo() {
+
+    const isLandscape = window.innerWidth > window.innerHeight;
+
+    if (isLandscape) {
+
+        // preserve your existing mirror logic
+        if (currentCamera === "user") {
+            video.style.transform = "scaleX(-1)";
+        } else {
+            video.style.transform = "none";
+        }
+    }
+}
+
 // New states
 let photoMode = "single";          // single | grid
 let orientation = "portrait";      // portrait | landscape
@@ -57,6 +72,7 @@ async function startCamera(camera = "environment") {
     video.style.transform = "none";
 }
 
+       
         preview.style.display = "none";
         video.style.display = "block";
 

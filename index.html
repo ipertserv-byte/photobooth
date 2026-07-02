@@ -20,23 +20,50 @@
         <p>Live Photobooth</p>
     </div>
 
+
+    
     <div class="camera-container">
 
-        <video
-            id="video"
-            autoplay
-            playsinline
-            muted
-        ></video>
+    <!-- LEFT CONTROLS -->
+    <div class="photo-mode">
+        <button id="singleMode" class="mode-btn active">
+            🖼️
+        </button>
 
-        <canvas id="canvas" hidden></canvas>
-
-        <img
-            id="preview"
-            alt="Captured Photo"
-        >
-
+        <button id="gridMode" class="mode-btn">
+            ⊞
+        </button>
     </div>
+
+    <!-- RIGHT CONTROLS -->
+    <div class="orientation-mode">
+        <button id="portraitBtn" class="orientation-btn active">
+            📱
+        </button>
+
+        <button id="landscapeBtn" class="orientation-btn">
+            🖥️
+        </button>
+    </div>
+
+    <video
+        id="video"
+        autoplay
+        playsinline
+        muted
+    ></video>
+
+    <canvas id="canvas" hidden></canvas>
+
+    <img
+        id="preview"
+        alt="Captured Photo"
+    >
+
+</div>
+
+
+    
 
     <div class="camera-buttons">
     <button id="rearBtn">📷 Rear Camera</button>

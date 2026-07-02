@@ -25,16 +25,14 @@ function fixLandscapeVideo() {
 
     const isLandscape = window.innerWidth > window.innerHeight;
 
-    if (isLandscape) {
-
-        // preserve your existing mirror logic
-        if (currentCamera === "user") {
-            video.style.transform = "scaleX(-1)";
-        } else {
-            video.style.transform = "none";
-        }
+    // ALWAYS re-apply correct camera state
+    if (currentCamera === "user") {
+        video.style.transform = "scaleX(-1)";
+    } else {
+        video.style.transform = "none";
     }
 }
+
 
 // New states
 let photoMode = "single";          // single | grid
@@ -258,3 +256,7 @@ landscapeBtn.onclick = async () => {
 ========================= */
 
 startCamera();
+
+
+window.addEventListener("resize", fixLandscapeVideo);
+window.addEventListener("orientationchange", fixLandscapeVideo);

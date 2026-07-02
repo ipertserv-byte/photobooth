@@ -17,6 +17,7 @@ let currentCamera = "environment";
 // Start camera
 async function startCamera(camera) {
 
+    // Stop previous camera
     if (currentStream) {
         currentStream.getTracks().forEach(track => track.stop());
     }
@@ -25,14 +26,16 @@ async function startCamera(camera) {
 
         currentStream = await navigator.mediaDevices.getUserMedia({
             video: {
-                facingMode: { ideal: camera }
+                facingMode: {
+                    ideal: camera
+                }
             },
             audio: false
         });
 
-    } catch (e) {
+    } catch (err) {
 
-        // Fallback to any camera
+        // Fallback to any available camera
         currentStream = await navigator.mediaDevices.getUserMedia({
             video: true,
             audio: false
@@ -40,10 +43,11 @@ async function startCamera(camera) {
 
     }
 
-    video.srcObject = currentStream;
-    await video.play();
+    currentCamera = camera;
 
-    status.textContent = "";
+    video.srcObject = currentStream;
+
+    await video.play();
 
     video.style.display = "block";
     preview.style.display = "none";
@@ -51,27 +55,24 @@ async function startCamera(camera) {
     captureBtn.style.display = "inline-block";
     retakeBtn.style.display = "none";
     uploadBtn.style.display = "none";
+
+    status.textContent = "";
 }
 
-// Rear camera
-rearBtn.onclick = () => {
+// Camera buttons
+rearBtn.addEventListener("click", () => {
     startCamera("environment");
-};
+});
 
-// Front camera
-frontBtn.onclick = () => {
+frontBtn.addEventListener("click", () => {
     startCamera("user");
-};
+});
 
-// Start rear camera automatically
-startCamera("environment");
+// Capture photo
+captureBtn.addEventListener("click", () => {
 
-captureBtn.onclick = () => {
-
-    status.textContent = "Capture button pressed...";
-
-    if (video.videoWidth === 0 || video.videoHeight === 0) {
-        status.textContent = "Video is not ready yet.";
+    if (video.videoWidth === 0) {
+        status.textContent = "Camera is still loading...";
         return;
     }
 
@@ -91,4 +92,20 @@ captureBtn.onclick = () => {
     uploadBtn.style.display = "inline-block";
 
     status.textContent = "Photo captured!";
-};
+});
+
+// Retake
+retakeBtn.addEventListener("click", () => {
+
+    video.style.display = "block";
+    preview.style.display = "none";
+
+    captureBtn.style.display = "inline-block";
+    retakeBtn.style.display = "none";
+    uploadBtn.style.display = "none";
+
+    status.textContent = "";
+});
+
+// Start camera
+startCamera(currentCamera);

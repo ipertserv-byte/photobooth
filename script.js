@@ -40,23 +40,28 @@ async function startCamera() {
 }
 
 captureBtn.addEventListener("click", () => {
-    const ctx = canvas.getContext("2d");
-    
+
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
 
-ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    
-    imageData = canvas.toDataURL("image/jpeg", 0.95);
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(video, 0, 0);
+
+    imageData = canvas.toDataURL("image/jpeg");
+
     preview.src = imageData;
+
     preview.style.display = "block";
     video.style.display = "none";
+
     captureBtn.style.display = "none";
     retakeBtn.style.display = "inline-block";
     uploadBtn.style.display = "inline-block";
-    status.innerHTML = "📸 Photo captured!";
-});
+    
 
+    status.innerHTML = "📸 Photo captured!";
+
+});
 
 retakeBtn.addEventListener("click", async () => {
 
@@ -79,12 +84,15 @@ uploadBtn.addEventListener("click", uploadPhoto);
 
 
 async function uploadPhoto() {
+
+    
     if (!imageData) {
         status.innerHTML = "⚠️ No photo to upload.";
         return;
     }
+
     status.innerHTML = "☁️ Uploading...";
-    uploadBtn.disabled = true;
+
     const byteString = atob(imageData.split(",")[1]);
 const mimeString = imageData.split(",")[0].split(":")[1].split(";")[0];
 
@@ -122,7 +130,6 @@ const blob = new Blob([ab], { type: mimeString });
     alert("Photo uploaded successfully!");
 status.innerHTML = "✅ Upload successful!";
 
-            
 setTimeout(() => {
     status.innerHTML = "";
 }, 2000);
@@ -135,7 +142,7 @@ setTimeout(() => {
     uploadBtn.style.display = "none";
 
     imageData = "";
-uploadBtn.disabled = false;
+
     setTimeout(() => {
     startCamera();
 }, 300);
@@ -143,19 +150,18 @@ uploadBtn.disabled = false;
 } else {
 
     console.log("Upload failed:", data);
-    status.innerHTML = "❌ Upload failed.";
-    uploadBtn.disabled = false;
+status.innerHTML = "❌ Upload failed.";
 
 }
 
     } catch (error) {
 
-    console.error(error);
+        console.error(error);
 
-    status.innerHTML = "❌ Upload error.";
-    uploadBtn.disabled = false;
+        status.innerHTML = "❌ Upload error.";
 
-}
+    }
+
 }
 
 frontBtn.addEventListener("click", async () => {

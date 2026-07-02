@@ -7,138 +7,448 @@
 <title>PERTSERV 15th Anniversary Live Gallery</title>
 
 <style>
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
+
+    *{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,Helvetica,sans-serif;
 }
 
 body{
-    background:#000;
-    color:#fff;
-    font-family:Arial,Helvetica,sans-serif;
-    overflow:hidden;
+
+background:
+radial-gradient(circle at top,#3B82F6 0%,#1E3A8A 35%,#0B1738 70%,#050B1A 100%);
+
+color:white;
+
+min-height:100vh;
+
+overflow:hidden;
+
+}
+
+.page{
+
+display:flex;
+
+flex-direction:column;
+
+height:100vh;
+
+padding:25px;
+
 }
 
 .header{
-    position:absolute;
-    top:20px;
-    left:0;
-    width:100%;
-    text-align:center;
-    z-index:10;
+
+text-align:center;
+
+margin-bottom:20px;
+
 }
 
 .header h1{
-    font-size:48px;
+
+font-size:56px;
+
+font-weight:800;
+
 }
 
-.header h2{
-    font-size:26px;
-    margin-top:8px;
-    color:#FFD700;
+.header p{
+
+font-size:24px;
+
+margin-top:8px;
+
 }
 
-#slideshow{
-    width:100vw;
-    height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
+.counter{
+
+margin-top:12px;
+
+font-size:22px;
+
+font-weight:bold;
+
+color:#FFD54F;
+
 }
 
-#photo{
-    max-width:95vw;
-    max-height:90vh;
-    border-radius:20px;
-    box-shadow:0 0 30px rgba(255,255,255,.25);
-    transition:opacity .8s;
+main{
+
+flex:1;
+
+display:flex;
+
+flex-direction:column;
+
+justify-content:center;
+
+align-items:center;
+
 }
 
-#loading{
-    font-size:30px;
+.featured-container{
+
+position:relative;
+
 }
+
+#featuredPhoto{
+display:block;
+width:min(900px,90vw);
+
+max-height:65vh;
+
+border-radius:22px;
+
+object-fit:contain;
+
+background:#111;
+
+box-shadow:
+0 0 40px rgba(0,140,255,.6);
+
+transition:.6s;
+
+}
+
+#badge{
+
+position:absolute;
+
+top:18px;
+
+left:18px;
+
+background:#ff9800;
+
+padding:10px 18px;
+
+border-radius:30px;
+
+font-weight:bold;
+
+display:none;
+
+}
+
+.filmstrip-wrapper{
+
+margin-top:35px;
+
+display:flex;
+
+align-items:center;
+
+gap:18px;
+
+width:100%;
+
+}
+
+#filmstrip{
+
+display:flex;
+
+gap:15px;
+
+overflow:hidden;
+
+flex:1;
+
+justify-content:center;
+
+}
+
+.thumb{
+
+width:110px;
+
+height:150px;
+
+object-fit:cover;
+
+border-radius:14px;
+
+border:3px solid transparent;
+
+transition:.4s;
+
+}
+
+.thumb.active{
+
+border-color:#ff9800;
+
+transform:scale(1.08);
+
+box-shadow:0 0 20px orange;
+
+}
+
+.nav-btn{
+
+background:rgba(255,255,255,.1);
+
+border:none;
+
+color:white;
+
+width:58px;
+
+height:58px;
+
+border-radius:50%;
+
+font-size:30px;
+
+cursor:pointer;
+
+}
+
+footer{
+
+text-align:center;
+
+padding:18px;
+
+font-size:18px;
+
+color:#ddd;
+
+}
+    
 </style>
+    
 </head>
 
 <body>
+<div class="page">
 
-<div class="header">
-    <h1>PERTSERV</h1>
-    <h2>15th Anniversary Live Photobooth 📸</h2>
+    <header class="header">
+
+        <h1>PERTSERV</h1>
+
+        <p>15th Anniversary Live Photobooth 🎉</p>
+
+        <div class="counter">
+
+            📸 <span id="photoCount">0</span> Memories Captured
+
+        </div>
+
+    </header>
+
+    <main>
+
+        <div class="featured-container">
+
+            <img id="featuredPhoto">
+
+            <div id="badge">
+
+                ✨ Just Captured
+
+            </div>
+
+        </div>
+
+        <div class="filmstrip-wrapper">
+
+            <button class="nav-btn" id="prevBtn">❮</button>
+
+            <div id="filmstrip"></div>
+
+            <button class="nav-btn" id="nextBtn">❯</button>
+
+        </div>
+
+    </main>
+
+    <footer>
+
+        Live Feed • Updates Automatically
+
+    </footer>
+
 </div>
-
-<div id="slideshow">
-    <div id="loading">Loading photos...</div>
-</div>
-
 <script>
+const API = "https://photobooth-api.ipertserv.workers.dev";
 
-const API="https://photobooth-api.ipertserv.workers.dev";
+let photos = [];
+let currentIndex = 0;
 
-let photos=[];
-let index=0;
+const featured = document.getElementById("featuredPhoto");
+const filmstrip = document.getElementById("filmstrip");
+const counter = document.getElementById("photoCount");
+const badge = document.getElementById("badge");
 
-async function loadPhotos(){
+async function loadPhotos() {
 
-    try{
+    try {
 
-        const res=await fetch(API);
-        const data=await res.json();
+        const res = await fetch(API);
+        const data = await res.json();
 
-        if(Array.isArray(data) && data.length){
+        if (!Array.isArray(data) || !data.length) return;
 
-            photos=data;
+        // Detect new uploads
+      if (!photos.length) {
 
-            if(!document.getElementById("photo")){
-                showPhoto();
-            }
+    photos = data;
 
+    currentIndex = photos.length - 1; // Start with the newest photo
+
+    showFeatured(false);
+
+} else if (data.length > photos.length) {
+
+    photos = data;
+
+    currentIndex = photos.length - 1;
+
+    showFeatured(true);
+
+} else {
+
+    photos = data;
+
+}
+
+        counter.textContent = photos.length;
+
+        renderFilmstrip();
+
+    }
+
+    catch(err){
+
+        console.log(err);
+
+    }
+
+}
+
+    function showFeatured(isNew = false){
+
+    if(!photos.length) return;
+
+    featured.style.opacity = 0;
+
+    setTimeout(()=>{
+
+        featured.src = photos[currentIndex].url;
+
+        featured.style.opacity = 1;
+
+    },300);
+
+    if(isNew){
+
+        badge.style.display = "block";
+
+        setTimeout(()=>{
+
+            badge.style.display = "none";
+
+        },5000);
+
+    }
+
+}
+
+    function renderFilmstrip() {
+
+    filmstrip.innerHTML = "";
+
+    if (!photos.length) return;
+
+    const visible = 6;
+
+    let start = currentIndex - 2;
+
+    if (start < 0) {
+        start = 0;
+    }
+
+    if (start > photos.length - visible) {
+        start = Math.max(0, photos.length - visible);
+    }
+
+    const end = Math.min(start + visible, photos.length);
+
+    for (let i = start; i < end; i++) {
+
+        const img = document.createElement("img");
+
+        img.src = photos[i].url;
+
+        img.className = "thumb";
+
+        if (i === currentIndex) {
+            img.classList.add("active");
         }
 
-    }catch(e){
-        console.log(e);
+        img.onclick = () => {
+
+            currentIndex = i;
+
+            showFeatured();
+
+            renderFilmstrip();
+
+        };
+
+        filmstrip.appendChild(img);
+
     }
 
 }
 
-function showPhoto(){
+    function nextPhoto(){
 
     if(!photos.length) return;
 
-    const slideshow=document.getElementById("slideshow");
+    currentIndex++;
 
-    slideshow.innerHTML="";
+    if(currentIndex>=photos.length){
 
-    const img=document.createElement("img");
+        currentIndex=0;
 
-    img.id="photo";
-
-    img.src=photos[index].url;
-
-    slideshow.appendChild(img);
-
-}
-
-function nextPhoto(){
-
-    if(!photos.length) return;
-
-    index++;
-
-    if(index>=photos.length){
-        index=0;
     }
 
-    showPhoto();
+    showFeatured();
+
+    renderFilmstrip();
 
 }
+
+document.getElementById("nextBtn").onclick=nextPhoto;
+
+document.getElementById("prevBtn").onclick=()=>{
+
+    currentIndex--;
+
+    if(currentIndex<0){
+
+        currentIndex=photos.length-1;
+
+    }
+
+    showFeatured();
+
+    renderFilmstrip();
+
+};
 
 loadPhotos();
 
 setInterval(loadPhotos,5000);
 
-setInterval(nextPhoto,3000);
+setInterval(nextPhoto,5000);
 
 </script>
 

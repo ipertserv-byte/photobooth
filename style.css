@@ -49,27 +49,16 @@ body{
     margin-bottom:20px;
 }
 
-/* 🔥 MIRROR LIVE CAMERA */
-video{
-    width:100%;
-    height:100%;
-    object-fit:cover;
-    display:block;
-    transform: scaleX(-1);
-}
-
-/* hidden canvas */
-canvas{
-    display:none;
-}
-
-/* preview (mirrored for consistency) */
+video,
 #preview{
     width:100%;
     height:100%;
     object-fit:cover;
+    display:block;
+}
+
+#preview{
     display:none;
-    transform: scaleX(-1);
 }
 
 .camera-buttons,
@@ -124,7 +113,8 @@ button:active{
     margin-top:10px;
 }
 
-/* mobile */
+/* ---------- Mobile ---------- */
+
 @media (max-width:600px){
 
     body{
@@ -144,6 +134,7 @@ button:active{
         font-size:1rem;
     }
 
+    /* KEEP BUTTONS SIDE BY SIDE */
     .camera-buttons,
     .action-buttons{
         flex-direction:row;
@@ -154,4 +145,5 @@ button:active{
         padding:14px;
         font-size:15px;
     }
+
 }

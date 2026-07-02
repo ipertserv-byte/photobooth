@@ -262,7 +262,7 @@ async function loadPhotos() {
             photos = data;
 
             // Newest photo is always first
-            currentIndex = 0;
+            currentIndex = photos.length - 1;
 
             showFeatured(true);
             renderFilmstrip();

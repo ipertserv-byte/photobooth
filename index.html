@@ -3,102 +3,15 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>PERTSERV Photobooth</title>
-
-<style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: Arial, sans-serif;
-}
-
-body {
-  background: #111;
-  color: white;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-height: 100vh;
-  padding: 20px;
-}
-
-/* CAMERA SELECT */
-.camera-select {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 15px;
-  width: 100%;
-  max-width: 500px;
-}
-
-.camera-select button {
-  flex: 1;
-  padding: 12px;
-  border: none;
-  border-radius: 10px;
-  font-size: 16px;
-  cursor: pointer;
-  background: #333;
-  color: white;
-  transition: 0.2s;
-}
-
-.camera-select button.active {
-  background: #00c3ff;
-  color: #000;
-  font-weight: bold;
-}
-
-/* VIDEO */
-video {
-  width: 100%;
-  max-width: 500px;
-  border-radius: 12px;
-  background: black;
-}
-
-/* CONTROLS */
-.controls {
-  margin-top: 15px;
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.controls button {
-  padding: 12px 16px;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 15px;
-  background: #222;
-  color: white;
-}
-
-.controls button:hover {
-  background: #444;
-}
-
-/* PREVIEW */
-#preview {
-  margin-top: 15px;
-  max-width: 500px;
-  width: 100%;
-  border-radius: 12px;
-  display: none;
-}
-
-</style>
+<title>Photobooth</title>
 </head>
 
 <body>
 
 <h2>Photobooth</h2>
 
-<div class="camera-select">
-  <button id="rearBtn" class="active">Rear Camera</button>
+<div>
+  <button id="rearBtn">Rear Camera</button>
   <button id="frontBtn">Selfie Camera</button>
 </div>
 
@@ -106,9 +19,9 @@ video {
 
 <canvas id="canvas" style="display:none;"></canvas>
 
-<img id="preview" />
+<img id="preview" style="max-width:100%; display:none;" />
 
-<div class="controls">
+<div>
   <button id="captureBtn">Capture</button>
   <button id="retakeBtn">Retake</button>
   <button id="uploadBtn">Upload</button>
@@ -127,38 +40,24 @@ const retakeBtn = document.getElementById("retakeBtn");
 const uploadBtn = document.getElementById("uploadBtn");
 
 let currentStream;
-let currentCamera = "environment";
 let imageData = "";
 
-/* START CAMERA */
 async function startCamera(facingMode) {
   if (currentStream) {
     currentStream.getTracks().forEach(track => track.stop());
   }
 
   currentStream = await navigator.mediaDevices.getUserMedia({
-    video: { facingMode: facingMode },
+    video: { facingMode },
     audio: false
   });
 
   video.srcObject = currentStream;
-  currentCamera = facingMode;
 }
 
-/* CAMERA BUTTONS */
-rearBtn.onclick = () => {
-  startCamera("environment");
-  rearBtn.classList.add("active");
-  frontBtn.classList.remove("active");
-};
+rearBtn.onclick = () => startCamera("environment");
+frontBtn.onclick = () => startCamera("user");
 
-frontBtn.onclick = () => {
-  startCamera("user");
-  frontBtn.classList.add("active");
-  rearBtn.classList.remove("active");
-};
-
-/* CAPTURE */
 captureBtn.onclick = () => {
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
@@ -172,21 +71,16 @@ captureBtn.onclick = () => {
   preview.style.display = "block";
 };
 
-/* RETAKE */
 retakeBtn.onclick = () => {
   preview.style.display = "none";
   imageData = "";
 };
 
-/* UPLOAD (demo only) */
 uploadBtn.onclick = () => {
   if (!imageData) return alert("No image captured!");
-
-  console.log("Uploading image...");
-  alert("Uploaded (demo)");
+  alert("Uploaded (demo only)");
 };
 
-/* INIT */
 startCamera("environment");
 </script>
 

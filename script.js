@@ -21,6 +21,10 @@ let currentStream = null;
 let currentCamera = "environment";
 let imageData = "";
 
+// New states
+let photoMode = "single";          // single | grid
+let orientation = "portrait";      // portrait | landscape
+
 
 /* =========================
    START CAMERA
@@ -179,15 +183,23 @@ uploadBtn.addEventListener("click", async () => {
 
 singleMode.onclick = () => {
 
+    photoMode = "single";
+
     singleMode.classList.add("active");
     gridMode.classList.remove("active");
+
+    console.log("Photo Mode:", photoMode);
 
 };
 
 gridMode.onclick = () => {
 
+    photoMode = "grid";
+
     gridMode.classList.add("active");
     singleMode.classList.remove("active");
+
+    console.log("Photo Mode:", photoMode);
 
 };
 
@@ -197,15 +209,23 @@ gridMode.onclick = () => {
 
 portraitBtn.onclick = () => {
 
+    orientation = "portrait";
+
     portraitBtn.classList.add("active");
     landscapeBtn.classList.remove("active");
+
+    console.log("Orientation:", orientation);
 
 };
 
 landscapeBtn.onclick = () => {
 
+    orientation = "landscape";
+
     landscapeBtn.classList.add("active");
     portraitBtn.classList.remove("active");
+
+    console.log("Orientation:", orientation);
 
 };
 

@@ -22,10 +22,12 @@ async function startCamera(camera = "environment") {
 
     try {
 
+        // stop previous stream
         if (currentStream) {
             currentStream.getTracks().forEach(track => track.stop());
         }
 
+        // start new stream
         currentStream = await navigator.mediaDevices.getUserMedia({
             video: {
                 facingMode: {
@@ -36,16 +38,18 @@ async function startCamera(camera = "environment") {
         });
 
         currentCamera = camera;
+
+        // LIVE PREVIEW MIRROR ONLY FOR FRONT CAMERA
         if (camera === "user") {
-    video.style.transform = "scaleX(-1)";
-} else {
-    video.style.transform = "scaleX(1)";
-}
+            video.style.transform = "scaleX(-1)";
+        } else {
+            video.style.transform = "scaleX(1)";
+        }
 
         video.srcObject = currentStream;
-
         await video.play();
 
+        // reset UI
         preview.style.display = "none";
         video.style.display = "block";
 
@@ -56,12 +60,9 @@ async function startCamera(camera = "environment") {
         status.textContent = "";
 
     } catch (err) {
-
         console.error(err);
         status.textContent = "Unable to access camera.";
-
     }
-
 }
 
 // =========================
@@ -76,7 +77,7 @@ frontBtn.addEventListener("click", () => {
 });
 
 // =========================
-// CAPTURE
+// CAPTURE (ONLY FRONT CAMERA IS MIRRORED)
 // =========================
 captureBtn.addEventListener("click", () => {
 
@@ -90,16 +91,20 @@ captureBtn.addEventListener("click", () => {
 
     const ctx = canvas.getContext("2d");
 
-    // OPTION 1: always mirrored output
-    ctx.save();
-    ctx.translate(canvas.width, 0);
-    ctx.scale(-1, 1);
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    ctx.restore();
+    // ONLY mirror when using FRONT camera
+    if (currentCamera === "user") {
+        ctx.save();
+        ctx.translate(canvas.width, 0);
+        ctx.scale(-1, 1);
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        ctx.restore();
+    } else {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    }
 
     imageData = canvas.toDataURL("image/jpeg", 0.95);
 
-    // Preview is just the output (NO transform)
+    // preview = same as output (NO transform)
     preview.src = imageData;
 
     preview.style.display = "block";
@@ -127,16 +132,14 @@ retakeBtn.addEventListener("click", () => {
     uploadBtn.style.display = "none";
 
     status.textContent = "";
-
 });
 
 // =========================
-// UPLOAD
+// UPLOAD (placeholder)
 // =========================
 uploadBtn.addEventListener("click", () => {
 
     alert("Cloudinary upload will be added next.");
-
 });
 
 // =========================

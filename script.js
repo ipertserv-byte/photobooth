@@ -2,7 +2,7 @@ const video = document.getElementById("video");
 const canvas = document.getElementById("canvas");
 const preview = document.getElementById("preview");
 
-const captureBtn = document.getElementById("captureBtn");
+const Btn = document.getElementById("captureBtn");
 const retakeBtn = document.getElementById("retakeBtn");
 const uploadBtn = document.getElementById("uploadBtn");
 
@@ -40,28 +40,38 @@ async function startCamera() {
 }
 
 captureBtn.addEventListener("click", () => {
-
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-
     const ctx = canvas.getContext("2d");
-    ctx.drawImage(video, 0, 0);
-
-    imageData = canvas.toDataURL("image/jpeg");
-
+    const vw = video.videoWidth;
+    const vh = video.videoHeight;
+    // Check if the device is currently in portrait mode
+    const isPortrait = window.innerHeight > window.innerWidth;
+    // Determine if the video stream orientation matches the screen
+    const needsRotation =
+        (isPortrait && vw > vh) ||
+        (!isPortrait && vh > vw);
+    if (needsRotation) {
+        canvas.width = vh;
+        canvas.height = vw;
+        ctx.save();
+        ctx.translate(canvas.width / 2, canvas.height / 2);
+        ctx.rotate(90 * Math.PI / 180);
+        ctx.drawImage(video, -vw / 2, -vh / 2, vw, vh);
+        ctx.restore();
+    } else {
+        canvas.width = vw;
+        canvas.height = vh;
+        ctx.drawImage(video, 0, 0, vw, vh);
+    }
+    imageData = canvas.toDataURL("image/jpeg", 0.95);
     preview.src = imageData;
-
     preview.style.display = "block";
     video.style.display = "none";
-
     captureBtn.style.display = "none";
     retakeBtn.style.display = "inline-block";
     uploadBtn.style.display = "inline-block";
-    
-
     status.innerHTML = "📸 Photo captured!";
-
 });
+
 
 retakeBtn.addEventListener("click", async () => {
 

@@ -91,37 +91,54 @@ captureBtn.addEventListener("click", () => {
     const videoWidth = video.videoWidth;
     const videoHeight = video.videoHeight;
 
-    // Set canvas based on orientation
-    if (orientation === "landscape") {
-        canvas.width = videoHeight;
-        canvas.height = videoWidth;
-    } else {
-        canvas.width = videoWidth;
-        canvas.height = videoHeight;
-    }
-
     const ctx = canvas.getContext("2d");
 
-    // reset transforms
+    // reset canvas transform
     ctx.setTransform(1, 0, 0, 1, 0, 0);
 
-    // HANDLE MIRROR + ROTATION
+    let outputWidth = videoWidth;
+    let outputHeight = videoHeight;
 
+    // LANDSCAPE: swap dimensions
+    if (orientation === "landscape") {
+        outputWidth = videoHeight;
+        outputHeight = videoWidth;
+    }
+
+    canvas.width = outputWidth;
+    canvas.height = outputHeight;
+
+    // reset again after resize (important)
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+    // HANDLE SELFIE MIRROR
     if (currentCamera === "user") {
-        // selfie camera (mirror fix)
         ctx.translate(canvas.width, 0);
         ctx.scale(-1, 1);
     }
 
+    // DRAW IMAGE
     if (orientation === "landscape") {
-        // rotate canvas for landscape
+
+        // rotate to fit landscape properly
         ctx.translate(canvas.width / 2, canvas.height / 2);
         ctx.rotate(90 * Math.PI / 180);
-        ctx.drawImage(video, -videoWidth / 2, -videoHeight / 2);
+
+        ctx.drawImage(
+            video,
+            -videoWidth / 2,
+            -videoHeight / 2,
+            videoWidth,
+            videoHeight
+        );
+
     } else {
+
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
     }
 
+    // EXPORT
     imageData = canvas.toDataURL("image/jpeg", 0.95);
 
     preview.src = imageData;

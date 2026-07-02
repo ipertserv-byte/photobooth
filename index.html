@@ -1,1 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Photobooth</title>
+<link rel="stylesheet" href="style.css">
+</head>
 
+<body>
+
+<div class="container">
+
+  <div class="header">
+    <h1>Photobooth</h1>
+    <p id="status"></p>
+  </div>
+
+  <div class="camera-buttons">
+    <button id="rearBtn">Rear</button>
+    <button id="frontBtn">Selfie</button>
+  </div>
+
+  <div class="camera-container">
+    <video id="video" autoplay playsinline></video>
+    <img id="preview" />
+  </div>
+
+  <div class="action-buttons">
+    <button id="captureBtn">Capture</button>
+    <button id="retakeBtn">Retake</button>
+    <button id="uploadBtn">Upload</button>
+  </div>
+
+</div>
+
+<canvas id="canvas" style="display:none;"></canvas>
+
+<script src="script.js"></script>
+</body>
+</html>

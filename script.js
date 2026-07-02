@@ -17,29 +17,41 @@ let currentCamera = "environment";
 // Start camera
 async function startCamera(camera) {
 
-    if(currentStream){
+    if (currentStream) {
         currentStream.getTracks().forEach(track => track.stop());
     }
 
-    try{
+    try {
 
         currentStream = await navigator.mediaDevices.getUserMedia({
-            video:{
-                facingMode: camera
+            video: {
+                facingMode: { ideal: camera }
             },
-            audio:false
+            audio: false
         });
 
-        video.srcObject = currentStream;
-        await video.play();
-        currentCamera = camera;
+    } catch (e) {
 
-        video.style.display = "block";
-        preview.style.display = "none";
+        // Fallback to any camera
+        currentStream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: false
+        });
 
-        captureBtn.style.display = "inline-block";
-        retakeBtn.style.display = "none";
-        uploadBtn.style.display = "none";
+    }
+
+    video.srcObject = currentStream;
+    await video.play();
+
+    status.textContent = "";
+
+    video.style.display = "block";
+    preview.style.display = "none";
+
+    captureBtn.style.display = "inline-block";
+    retakeBtn.style.display = "none";
+    uploadBtn.style.display = "none";
+}
 
         status.textContent = "";
 

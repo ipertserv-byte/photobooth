@@ -1,161 +1,118 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PERTSERV 15th Anniversary</title>
-
-<style>
-    body{
-        margin:0;
-        font-family: Arial, sans-serif;
-        background:#eef3fb;
-        display:flex;
-        justify-content:center;
-        align-items:center;
-        min-height:100vh;
-    }
-
-    .card{
-        width:90%;
-        max-width:420px;
-        background:white;
-        border-radius:20px;
-        padding:20px;
-        box-shadow:0 10px 30px rgba(0,0,0,0.1);
-    }
-
-    h1{
-        font-size:22px;
-        margin:0;
-        color:#000;
-    }
-
-    .subtitle{
-        font-size:13px;
-        color:#666;
-        margin-bottom:15px;
-    }
-
-    .preview{
-        width:100%;
-        aspect-ratio: 3/4;
-        background:black;
-        border-radius:15px;
-        overflow:hidden;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        margin-bottom:15px;
-    }
-
-    video{
-        width:100%;
-        height:100%;
-        object-fit:cover;
-    }
-
-    .btn-row{
-        display:flex;
-        gap:10px;
-        margin-bottom:10px;
-    }
-
-    button{
-        flex:1;
-        padding:12px;
-        border:none;
-        border-radius:12px;
-        font-weight:bold;
-        cursor:pointer;
-        color:white;
-        font-size:14px;
-    }
-
-    .rear{
-        background:#0b3a82;
-    }
-
-    .front{
-        background:#0b3a82;
-    }
-
-    .capture{
-        background:#1f6fff;
-        width:100%;
-    }
-
-    button:hover{
-        opacity:0.9;
-    }
-
-    canvas{ display:none; }
-
-</style>
-</head>
-
-<body>
-
-<div class="card">
-
-    <h1>🎉 PERTSERV 15th Anniversary</h1>
-    <div class="subtitle">Live Photobooth</div>
-
-    <div class="preview">
-        <video id="video" autoplay playsinline></video>
-    </div>
-
-    <div class="btn-row">
-        <button class="rear" id="rearBtn">📷 Rear Camera</button>
-        <button class="front" id="frontBtn">🤳 Selfie Camera</button>
-    </div>
-
-    <button class="capture" id="captureBtn">📸 Capture</button>
-
-    <canvas id="canvas"></canvas>
-
-</div>
-
-<script>
 const video = document.getElementById("video");
 const canvas = document.getElementById("canvas");
+const preview = document.getElementById("preview");
 
 const rearBtn = document.getElementById("rearBtn");
 const frontBtn = document.getElementById("frontBtn");
+
 const captureBtn = document.getElementById("captureBtn");
+const retakeBtn = document.getElementById("retakeBtn");
+const uploadBtn = document.getElementById("uploadBtn");
 
-let stream;
+const status = document.getElementById("status");
 
-async function startCamera(mode){
-    if(stream){
-        stream.getTracks().forEach(t => t.stop());
+let currentStream = null;
+let currentCamera = "environment";
+let imageData = "";
+
+let gridShots = [];
+const maxShots = 4;
+
+// START CAMERA
+async function startCamera(camera = "environment") {
+    try {
+        if (currentStream) {
+            currentStream.getTracks().forEach(track => track.stop());
+        }
+
+        currentStream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: { ideal: camera } },
+            audio: false
+        });
+
+        currentCamera = camera;
+
+        video.style.transform = (camera === "user") ? "scaleX(-1)" : "scaleX(1)";
+        video.srcObject = currentStream;
+        await video.play();
+
+        preview.style.display = "none";
+        video.style.display = "block";
+
+        captureBtn.style.display = "block";
+        retakeBtn.style.display = "none";
+        uploadBtn.style.display = "none";
+
+        gridShots = [];
+        status.textContent = "";
+
+    } catch (err) {
+        console.error(err);
+        status.textContent = "Unable to access camera.";
     }
-
-    stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: mode }
-    });
-
-    video.srcObject = stream;
 }
 
-rearBtn.onclick = () => startCamera("environment");
-frontBtn.onclick = () => startCamera("user");
+// CAMERA SWITCH
+rearBtn.addEventListener("click", () => startCamera("environment"));
+frontBtn.addEventListener("click", () => startCamera("user"));
 
-captureBtn.onclick = () => {
+// CAPTURE
+captureBtn.addEventListener("click", () => {
+
+    if (!video.videoWidth) {
+        status.textContent = "Camera is still loading...";
+        return;
+    }
+
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
 
     const ctx = canvas.getContext("2d");
-    ctx.drawImage(video, 0, 0);
 
-    const img = canvas.toDataURL("image/png");
+    if (currentCamera === "user") {
+        ctx.save();
+        ctx.translate(canvas.width, 0);
+        ctx.scale(-1, 1);
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        ctx.restore();
+    } else {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    }
 
-    const win = window.open();
-    win.document.write(`<img src="${img}" style="width:100%">`);
-};
+    imageData = canvas.toDataURL("image/jpeg", 0.95);
 
-startCamera("environment");
-</script>
+    // 👉 ONLY SINGLE PHOTO OUTPUT (NO GRID MODE BUTTONS)
+    preview.src = imageData;
 
-</body>
-</html>
+    preview.style.display = "block";
+    video.style.display = "none";
+
+    captureBtn.style.display = "none";
+    retakeBtn.style.display = "block";
+    uploadBtn.style.display = "block";
+
+    status.textContent = "Photo captured.";
+});
+
+// RETAKE
+retakeBtn.addEventListener("click", () => {
+
+    preview.src = "";
+    preview.style.display = "none";
+
+    video.style.display = "block";
+
+    captureBtn.style.display = "block";
+    retakeBtn.style.display = "none";
+    uploadBtn.style.display = "none";
+
+    status.textContent = "";
+});
+
+// UPLOAD (placeholder)
+uploadBtn.addEventListener("click", () => {
+    alert("Cloudinary upload will be added next.");
+});
+
+// INIT
+startCamera();

@@ -117,6 +117,11 @@ video{
     height:100%;
     object-fit:cover;
     display:block;
+
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
 }
 
 /* PREVIEW */
@@ -178,3 +183,4 @@ button:active{
     font-weight:bold;
     color:#083b7c;
 }
+

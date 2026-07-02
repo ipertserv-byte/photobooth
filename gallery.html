@@ -91,19 +91,24 @@ align-items:center;
 }
 
 .featured-container{
-
-position:relative;
-
+    width:min(900px,90vw);
+    height:70vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:rgba(255,255,255,.05);
+    border-radius:24px;
+    overflow:hidden;
+    box-shadow:0 0 40px rgba(0,140,255,.35);
 }
 
 #featuredPhoto{
-    display:block;
-    width:min(900px,90vw);
-    height:min(65vh,700px);
-    border-radius:22px;
-    object-fit:cover;
-    background:#111;
-    box-shadow:0 0 40px rgba(0,140,255,.6);
+    max-width:100%;
+    max-height:100%;
+    width:auto;
+    height:auto;
+    object-fit:contain;
+    border-radius:18px;
     transition:all .6s ease;
 }
 

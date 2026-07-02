@@ -1,1 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<title>PERTSERV Live Gallery</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    background:#000;
+    color:#fff;
+    font-family:Arial,Helvetica,sans-serif;
+    overflow:hidden;
+}
+
+/* HEADER */
+.header{
+    position:absolute;
+    top:20px;
+    left:0;
+    width:100%;
+    text-align:center;
+    z-index:10;
+}
+
+.header h1{
+    font-size:48px;
+}
+
+.header h2{
+    font-size:22px;
+    color:#FFD700;
+}
+
+/* SLIDESHOW */
+#slideshow{
+    width:100vw;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+#photo{
+    max-width:95vw;
+    max-height:90vh;
+    border-radius:20px;
+    box-shadow:0 0 30px rgba(255,255,255,.25);
+    transition:opacity 0.5s ease;
+}
+
+#loading{
+    font-size:24px;
+    color:#fff;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    <h1>PERTSERV</h1>
+    <h2>15th Anniversary Live Photobooth 📸</h2>
+</div>
+
+<div id="slideshow">
+    <div id="loading">Loading photos...</div>
+</div>
+
+<script>
+
+const API = "https://photobooth-api.ipertserv.workers.dev";
+
+let photos = [];
+let index = 0;
+
+/* =========================
+   LOAD PHOTOS FROM WORKER
+========================= */
+async function loadPhotos() {
+
+    try {
+        const res = await fetch(API);
+        const data = await res.json();
+
+        if (Array.isArray(data) && data.length > 0) {
+
+            photos = data;
+
+            // keep index safe
+            if (index >= photos.length) {
+                index = 0;
+            }
+
+            showPhoto();
+        }
+
+    } catch (err) {
+        console.error("Failed to load photos:", err);
+    }
+}
+
+/* =========================
+   SHOW CURRENT PHOTO
+========================= */
+function showPhoto() {
+
+    const slideshow = document.getElementById("slideshow");
+
+    if (!photos.length) return;
+
+    slideshow.innerHTML = "";
+
+    const img = document.createElement("img");
+    img.id = "photo";
+    img.src = photos[index].url;
+
+    slideshow.appendChild(img);
+}
+
+/* =========================
+   NEXT PHOTO (SLIDESHOW)
+========================= */
+function nextPhoto() {
+
+    if (!photos.length) return;
+
+    index = (index + 1) % photos.length;
+    showPhoto();
+}
+
+/* =========================
+   INIT
+========================= */
+loadPhotos();
+
+/* refresh gallery from cloud */
+setInterval(loadPhotos, 5000);
+
+/* slideshow rotation */
+setInterval(nextPhoto, 4000);
+
+</script>
+
+</body>
+</html>

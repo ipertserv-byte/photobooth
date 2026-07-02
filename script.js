@@ -76,9 +76,14 @@ captureBtn.addEventListener("click", () => {
 
     const ctx = canvas.getContext("2d");
 
-    // ALWAYS mirror (no conditions)
-    ctx.translate(canvas.width, 0);
-    ctx.scale(-1, 1);
+    // Clear previous transforms (VERY IMPORTANT)
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+    if (currentCamera === "user") {
+        // Mirror ONLY front camera for selfie effect consistency
+        ctx.translate(canvas.width, 0);
+        ctx.scale(-1, 1);
+    }
 
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 

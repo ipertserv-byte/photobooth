@@ -28,9 +28,7 @@ async function startCamera(camera = "environment") {
 
         currentStream = await navigator.mediaDevices.getUserMedia({
             video: {
-                facingMode: {
-                    ideal: camera
-                }
+                facingMode: { ideal: camera }
             },
             audio: false
         });
@@ -56,7 +54,7 @@ async function startCamera(camera = "environment") {
 }
 
 /* =========================
-   CAMERA SWITCH
+   SWITCH CAMERA
 ========================= */
 rearBtn.addEventListener("click", () => {
     startCamera("environment");
@@ -67,7 +65,7 @@ frontBtn.addEventListener("click", () => {
 });
 
 /* =========================
-   CAPTURE (FIXED MIRROR LOGIC)
+   CAPTURE (FIXED — NO BUGS)
 ========================= */
 captureBtn.addEventListener("click", () => {
 
@@ -76,11 +74,11 @@ captureBtn.addEventListener("click", () => {
 
     const ctx = canvas.getContext("2d");
 
-    // Clear previous transforms (VERY IMPORTANT)
+    // reset transforms
     ctx.setTransform(1, 0, 0, 1, 0, 0);
 
+    // mirror ONLY front camera (selfie mode)
     if (currentCamera === "user") {
-        // Mirror ONLY front camera for selfie effect consistency
         ctx.translate(canvas.width, 0);
         ctx.scale(-1, 1);
     }

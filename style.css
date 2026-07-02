@@ -147,3 +147,13 @@ button:active{
     }
 
 }
+
+/* OPTION 1: MIRROR LIVE CAMERA */
+video {
+    transform: scaleX(-1);
+}
+
+/* OPTIONAL: mirror preview for consistency */
+#preview {
+    transform: scaleX(-1);
+}

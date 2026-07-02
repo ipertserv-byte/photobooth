@@ -9,6 +9,12 @@ const captureBtn = document.getElementById("captureBtn");
 const retakeBtn = document.getElementById("retakeBtn");
 const uploadBtn = document.getElementById("uploadBtn");
 
+const singleMode = document.getElementById("singleMode");
+const gridMode = document.getElementById("gridMode");
+
+const portraitBtn = document.getElementById("portraitBtn");
+const landscapeBtn = document.getElementById("landscapeBtn");
+
 const status = document.getElementById("status");
 
 let currentStream = null;
@@ -170,4 +176,40 @@ uploadBtn.addEventListener("click", async () => {
 /* =========================
    INIT
 ========================= */
+
+/* =========================
+   PHOTO MODE UI
+========================= */
+
+singleMode.onclick = () => {
+
+    singleMode.classList.add("active");
+    gridMode.classList.remove("active");
+
+};
+
+gridMode.onclick = () => {
+
+    gridMode.classList.add("active");
+    singleMode.classList.remove("active");
+
+};
+
+/* =========================
+   ORIENTATION UI
+========================= */
+
+portraitBtn.onclick = () => {
+
+    portraitBtn.classList.add("active");
+    landscapeBtn.classList.remove("active");
+
+};
+
+landscapeBtn.onclick = () => {
+
+    landscapeBtn.classList.add("active");
+    portraitBtn.classList.remove("active");
+
+};
 startCamera();

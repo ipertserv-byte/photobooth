@@ -91,54 +91,23 @@ captureBtn.addEventListener("click", () => {
     const videoWidth = video.videoWidth;
     const videoHeight = video.videoHeight;
 
+    canvas.width = videoWidth;
+    canvas.height = videoHeight;
+
     const ctx = canvas.getContext("2d");
 
-    // reset canvas transform
+    // reset transforms
     ctx.setTransform(1, 0, 0, 1, 0, 0);
 
-    let outputWidth = videoWidth;
-    let outputHeight = videoHeight;
-
-    // LANDSCAPE: swap dimensions
-    if (orientation === "landscape") {
-        outputWidth = videoHeight;
-        outputHeight = videoWidth;
-    }
-
-    canvas.width = outputWidth;
-    canvas.height = outputHeight;
-
-    // reset again after resize (important)
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-
-    // HANDLE SELFIE MIRROR
+    // selfie mirror only
     if (currentCamera === "user") {
         ctx.translate(canvas.width, 0);
         ctx.scale(-1, 1);
     }
 
-    // DRAW IMAGE
-    if (orientation === "landscape") {
+    // draw video as-is
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-        // rotate to fit landscape properly
-        ctx.translate(canvas.width / 2, canvas.height / 2);
-        ctx.rotate(180 * Math.PI / 360);
-
-        ctx.drawImage(
-            video,
-            -videoWidth / 2,
-            -videoHeight / 2,
-            videoWidth,
-            videoHeight
-        );
-
-    } else {
-
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-    }
-
-    // EXPORT
     imageData = canvas.toDataURL("image/jpeg", 0.95);
 
     preview.src = imageData;

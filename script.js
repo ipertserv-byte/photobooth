@@ -31,6 +31,7 @@ async function startCamera(camera) {
         });
 
         video.srcObject = currentStream;
+        await video.play();
         currentCamera = camera;
 
         video.style.display = "block";
@@ -66,12 +67,18 @@ startCamera("environment");
 
 captureBtn.onclick = () => {
 
-    const context = canvas.getContext("2d");
+    status.textContent = "Capture button pressed...";
+
+    if (video.videoWidth === 0 || video.videoHeight === 0) {
+        status.textContent = "Video is not ready yet.";
+        return;
+    }
 
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
 
-    context.drawImage(video, 0, 0);
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
     preview.src = canvas.toDataURL("image/jpeg");
 
@@ -82,4 +89,5 @@ captureBtn.onclick = () => {
     retakeBtn.style.display = "inline-block";
     uploadBtn.style.display = "inline-block";
 
+    status.textContent = "Photo captured!";
 };

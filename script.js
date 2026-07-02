@@ -41,27 +41,12 @@ async function startCamera() {
 
 captureBtn.addEventListener("click", () => {
     const ctx = canvas.getContext("2d");
-    const vw = video.videoWidth;
-    const vh = video.videoHeight;
-    // Check if the device is currently in portrait mode
-    const isPortrait = window.innerHeight > window.innerWidth;
-    // Determine if the video stream orientation matches the screen
-    const needsRotation =
-        (isPortrait && vw > vh) ||
-        (!isPortrait && vh > vw);
-    if (needsRotation) {
-        canvas.width = vh;
-        canvas.height = vw;
-        ctx.save();
-        ctx.translate(canvas.width / 2, canvas.height / 2);
-        ctx.rotate(90 * Math.PI / 180);
-        ctx.drawImage(video, -vw / 2, -vh / 2, vw, vh);
-        ctx.restore();
-    } else {
-        canvas.width = vw;
-        canvas.height = vh;
-        ctx.drawImage(video, 0, 0, vw, vh);
-    }
+    
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    
     imageData = canvas.toDataURL("image/jpeg", 0.95);
     preview.src = imageData;
     preview.style.display = "block";

@@ -36,6 +36,11 @@ async function startCamera(camera = "environment") {
         });
 
         currentCamera = camera;
+        if (camera === "user") {
+    video.style.transform = "scaleX(-1)";
+} else {
+    video.style.transform = "scaleX(1)";
+}
 
         video.srcObject = currentStream;
 
@@ -85,7 +90,22 @@ captureBtn.addEventListener("click", () => {
 
     const ctx = canvas.getContext("2d");
 
-    ctx.drawImage(video, 0, 0);
+    if (currentCamera === "user") {
+
+    ctx.save();
+
+    ctx.translate(canvas.width, 0);
+    ctx.scale(-1, 1);
+
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    ctx.restore();
+
+} else {
+
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+}
 
     imageData = canvas.toDataURL("image/jpeg", 0.95);
 

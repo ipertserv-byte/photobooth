@@ -12,23 +12,25 @@ const uploadBtn = document.getElementById("uploadBtn");
 const status = document.getElementById("status");
 
 let stream = null;
-let camera = "environment";
+let facingMode = "environment";
 
-let mode = "single"; // single or grid
 let shots = [];
 const MAX_SHOTS = 4;
 
-// CAMERA
-async function startCamera(facing) {
+// START CAMERA
+async function startCamera(mode) {
     try {
-        if (stream) stream.getTracks().forEach(t => t.stop());
+        facingMode = mode;
+
+        if (stream) {
+            stream.getTracks().forEach(t => t.stop());
+        }
 
         stream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: { ideal: facing } },
+            video: { facingMode: { ideal: mode } },
             audio: false
         });
 
-        camera = facing;
         video.srcObject = stream;
         await video.play();
 
@@ -48,7 +50,7 @@ async function startCamera(facing) {
     }
 }
 
-// SWITCH CAMERA
+// SWITCH CAMERAS
 rearBtn.onclick = () => startCamera("environment");
 frontBtn.onclick = () => startCamera("user");
 
@@ -60,7 +62,8 @@ captureBtn.onclick = () => {
 
     const ctx = canvas.getContext("2d");
 
-    if (camera === "user") {
+    // FIX: only mirror preview, not final image
+    if (facingMode === "user") {
         ctx.translate(canvas.width, 0);
         ctx.scale(-1, 1);
     }
@@ -68,12 +71,11 @@ captureBtn.onclick = () => {
     ctx.drawImage(video, 0, 0);
 
     const img = canvas.toDataURL("image/jpeg", 0.95);
-
     shots.push(img);
 
-    // SINGLE MODE
     if (shots.length === 1) {
         preview.src = img;
+
         video.style.display = "none";
         preview.style.display = "block";
 
@@ -85,44 +87,45 @@ captureBtn.onclick = () => {
         return;
     }
 
-    // GRID MODE (4 shots)
     if (shots.length < MAX_SHOTS) {
-        status.textContent = `Shot ${shots.length}/4`;
+        status.textContent = `Shot ${shots.length}/${MAX_SHOTS}`;
         return;
     }
 
     buildGrid();
 };
 
-// GRID BUILDER
+// GRID BUILDER (FIXED ORDER LOADING)
 function buildGrid() {
 
     const temp = document.createElement("canvas");
     const ctx = temp.getContext("2d");
 
-    const img = new Image();
-    img.src = shots[0];
+    const base = new Image();
+    base.src = shots[0];
 
-    img.onload = () => {
+    base.onload = () => {
 
-        const w = img.width;
-        const h = img.height;
+        const w = base.width;
+        const h = base.height;
 
         temp.width = w * 2;
         temp.height = h * 2;
 
+        let loaded = 0;
+
         shots.forEach((src, i) => {
-            const image = new Image();
-            image.src = src;
+            const img = new Image();
 
-            image.onload = () => {
-
+            img.onload = () => {
                 const x = (i % 2) * w;
                 const y = Math.floor(i / 2) * h;
 
-                ctx.drawImage(image, x, y, w, h);
+                ctx.drawImage(img, x, y, w, h);
 
-                if (i === shots.length - 1) {
+                loaded++;
+
+                if (loaded === shots.length) {
                     preview.src = temp.toDataURL("image/jpeg", 0.95);
 
                     video.style.display = "none";
@@ -135,6 +138,8 @@ function buildGrid() {
                     status.textContent = "Grid complete!";
                 }
             };
+
+            img.src = src;
         });
     };
 }
@@ -142,10 +147,10 @@ function buildGrid() {
 // RETAKE
 retakeBtn.onclick = () => {
     shots = [];
-    preview.src = "";
 
-    video.style.display = "block";
+    preview.src = "";
     preview.style.display = "none";
+    video.style.display = "block";
 
     captureBtn.style.display = "block";
     retakeBtn.style.display = "none";
@@ -156,7 +161,7 @@ retakeBtn.onclick = () => {
 
 // UPLOAD (placeholder)
 uploadBtn.onclick = () => {
-    alert("Upload coming next (Cloudflare / Cloudinary)");
+    alert("Upload system will be connected next (Cloudflare / Cloudinary)");
 };
 
 // INIT

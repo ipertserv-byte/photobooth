@@ -231,6 +231,7 @@ const API = "https://photobooth-api.ipertserv.workers.dev";
 
 let photos = [];
 let currentIndex = 0;
+let slideTimer = null;
 
 const featured = document.getElementById("featuredPhoto");
 const filmstrip = document.getElementById("filmstrip");
@@ -238,68 +239,82 @@ const counter = document.getElementById("photoCount");
 const badge = document.getElementById("badge");
 
 async function loadPhotos() {
-
     try {
-
-        const res = await fetch(API);
+        const res = await fetch(API + "?t=" + Date.now());
         const data = await res.json();
-        console.log(data[0]);
-        if (!Array.isArray(data) || !data.length) return;
 
-        // Detect new uploads
-      if (!photos.length) {
+        if (!Array.isArray(data) || data.length === 0) return;
 
-    photos = data;
+        counter.textContent = data.length;
 
-    currentIndex = 0; // Start with the newest photo
+        // First load
+        if (photos.length === 0) {
+            photos = data;
+            currentIndex = 0;
+            showFeatured(false);
+            renderFilmstrip();
+            startSlideshow();
+            return;
+        }
 
-    showFeatured(false);
+        // New upload detected
+        if (data.length > photos.length) {
+            photos = data;
 
-} else if (data.length > photos.length) {
-    photos = data;
-    currentIndex = 0;
-    showFeatured(true);
-} else {
-    photos = data;
-}
-        counter.textContent = photos.length;
-        renderFilmstrip();
+            // Newest photo is always first
+            currentIndex = 0;
+
+            showFeatured(true);
+            renderFilmstrip();
+
+            // Restart slideshow after showing new photo
+            startSlideshow();
+
+            return;
+        }
+
+        photos = data;
+
+    } catch (err) {
+        console.error(err);
     }
-    catch(err){
-        console.log(err);
-    }
 }
 
+function showFeatured(isNew = false) {
 
-    function showFeatured(isNew = false){
     if (!photos.length) return;
+
     featured.style.opacity = 0;
+
     featured.onload = () => {
+
         featured.style.opacity = 1;
+
         if (isNew) {
+
             badge.style.display = "block";
+
             setTimeout(() => {
                 badge.style.display = "none";
             }, 5000);
+
         }
+
     };
+
     featured.src = photos[currentIndex].url;
+
 }
 
-   
-    function renderFilmstrip() {
-    filmstrip.innerHTML = "";
-    if (!photos.length) return;
-    const visible = 6;
-    let start = currentIndex - 2;
-    if (start < 0) {
-        start = 0;
-    }
-    if (start > photos.length - visible) {
-        start = Math.max(0, photos.length - visible);
-    }
+function renderFilmstrip() {
 
-    const end = Math.min(start + visible, photos.length);
+    filmstrip.innerHTML = "";
+
+    const visible = 6;
+
+    let start = Math.max(0, currentIndex - 2);
+
+    let end = Math.min(start + visible, photos.length);
 
     for (let i = start; i < end; i++) {
 
@@ -314,13 +329,10 @@ async function loadPhotos() {
         }
 
         img.onclick = () => {
-
             currentIndex = i;
-
             showFeatured();
-
             renderFilmstrip();
-
+            startSlideshow();
         };
 
         filmstrip.appendChild(img);
@@ -329,47 +341,51 @@ async function loadPhotos() {
 
 }
 
-    function nextPhoto(){
+function nextPhoto() {
 
-    if(!photos.length) return;
+    if (!photos.length) return;
 
     currentIndex++;
 
-    if(currentIndex>=photos.length){
-
-        currentIndex=0;
-
+    if (currentIndex >= photos.length) {
+        currentIndex = 0;
     }
 
     showFeatured();
-
     renderFilmstrip();
 
 }
 
-document.getElementById("nextBtn").onclick=nextPhoto;
+function startSlideshow() {
 
-document.getElementById("prevBtn").onclick=()=>{
+    clearInterval(slideTimer);
+
+    slideTimer = setInterval(nextPhoto, 5000);
+
+}
+
+document.getElementById("nextBtn").onclick = () => {
+    nextPhoto();
+    startSlideshow();
+};
+
+document.getElementById("prevBtn").onclick = () => {
 
     currentIndex--;
 
-    if(currentIndex<0){
-
-        currentIndex=photos.length-1;
-
+    if (currentIndex < 0) {
+        currentIndex = photos.length - 1;
     }
 
     showFeatured();
-
     renderFilmstrip();
+    startSlideshow();
 
 };
 
 loadPhotos();
 
-setInterval(loadPhotos,1000);
-
-setInterval(nextPhoto,5000);
+setInterval(loadPhotos, 1000);
 
 </script>
 

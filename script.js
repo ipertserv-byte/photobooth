@@ -2,7 +2,7 @@ const video = document.getElementById("video");
 const canvas = document.getElementById("canvas");
 const preview = document.getElementById("preview");
 
-const Btn = document.getElementById("captureBtn");
+const captureBtn = document.getElementById("captureBtn");
 const retakeBtn = document.getElementById("retakeBtn");
 const uploadBtn = document.getElementById("uploadBtn");
 
@@ -79,15 +79,12 @@ uploadBtn.addEventListener("click", uploadPhoto);
 
 
 async function uploadPhoto() {
-
-    
     if (!imageData) {
         status.innerHTML = "⚠️ No photo to upload.";
         return;
     }
-
     status.innerHTML = "☁️ Uploading...";
-
+    uploadBtn.disabled = true;
     const byteString = atob(imageData.split(",")[1]);
 const mimeString = imageData.split(",")[0].split(":")[1].split(";")[0];
 
@@ -125,6 +122,7 @@ const blob = new Blob([ab], { type: mimeString });
     alert("Photo uploaded successfully!");
 status.innerHTML = "✅ Upload successful!";
 
+            
 setTimeout(() => {
     status.innerHTML = "";
 }, 2000);
@@ -137,7 +135,7 @@ setTimeout(() => {
     uploadBtn.style.display = "none";
 
     imageData = "";
-
+uploadBtn.disabled = false;
     setTimeout(() => {
     startCamera();
 }, 300);
@@ -145,18 +143,19 @@ setTimeout(() => {
 } else {
 
     console.log("Upload failed:", data);
-status.innerHTML = "❌ Upload failed.";
+    status.innerHTML = "❌ Upload failed.";
+    uploadBtn.disabled = false;
 
 }
 
     } catch (error) {
 
-        console.error(error);
+    console.error(error);
 
-        status.innerHTML = "❌ Upload error.";
+    status.innerHTML = "❌ Upload error.";
+    uploadBtn.disabled = false;
 
-    }
-
+}
 }
 
 frontBtn.addEventListener("click", async () => {

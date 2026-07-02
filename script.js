@@ -25,7 +25,11 @@ function fixLandscapeVideo() {
 
     const isLandscape = window.innerWidth > window.innerHeight;
 
-    // ALWAYS re-apply correct camera state
+    if (!isLandscape) return;
+
+    // DO NOT decide logic here
+    // ONLY restore current state safely
+
     if (currentCamera === "user") {
         video.style.transform = "scaleX(-1)";
     } else {
@@ -58,17 +62,18 @@ async function startCamera(camera = "environment") {
         });
 
         currentCamera = camera;
-
+applyCameraTransform();
         video.srcObject = currentStream;
         await video.play();
 
-       if (camera === "user") {
-    console.log("SELFIE CAMERA");
-    video.style.transform = "scaleX(-1)";
-} else {
-    console.log("REAR CAMERA");
-    video.style.transform = "none";
+        function applyCameraTransform() {
+    if (currentCamera === "user") {
+        video.style.transform = "scaleX(-1)";
+    } else {
+        video.style.transform = "none";
+    }
 }
+       applyCameraTransform();
 
        
         preview.style.display = "none";

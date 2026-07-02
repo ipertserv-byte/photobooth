@@ -285,35 +285,29 @@ async function loadPhotos() {
 
 
     function showFeatured(isNew = false){
-    if(!photos.length) return;
+    if (!photos.length) return;
     featured.style.opacity = 0;
-    setTimeout(()=>{
-        featured.src = photos[currentIndex].url;
+    featured.onload = () => {
         featured.style.opacity = 1;
-        if(isNew){
+        if (isNew) {
             badge.style.display = "block";
-            setTimeout(()=>{
+            setTimeout(() => {
                 badge.style.display = "none";
-            },5000);
+            }, 5000);
         }
-    },300);
+    };
+    featured.src = photos[currentIndex].url;
 }
 
    
     function renderFilmstrip() {
-
     filmstrip.innerHTML = "";
-
     if (!photos.length) return;
-
     const visible = 6;
-
     let start = currentIndex - 2;
-
     if (start < 0) {
         start = 0;
     }
-
     if (start > photos.length - visible) {
         start = Math.max(0, photos.length - visible);
     }

@@ -119,8 +119,43 @@ retakeBtn.addEventListener("click", () => {
 /* =========================
    UPLOAD (placeholder)
 ========================= */
-uploadBtn.addEventListener("click", () => {
-    alert("Cloudinary upload will be added next.");
+uploadBtn.addEventListener("click", async () => {
+
+    if (!imageData) {
+        alert("Please capture a photo first.");
+        return;
+    }
+
+    status.textContent = "Uploading...";
+
+    const formData = new FormData();
+    formData.append("file", imageData);
+    formData.append("upload_preset", "photobooth");
+
+    try {
+
+        const response = await fetch(
+            "https://api.cloudinary.com/v1_1/sfnq6tmp/image/upload",
+            {
+                method: "POST",
+                body: formData
+            }
+        );
+
+        const data = await response.json();
+
+        if (data.secure_url) {
+            status.textContent = "Upload successful!";
+        } else {
+            status.textContent = "Upload failed.";
+            console.log(data);
+        }
+
+    } catch (err) {
+        console.error(err);
+        status.textContent = "Upload error.";
+    }
+
 });
 
 /* =========================

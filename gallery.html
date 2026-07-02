@@ -243,7 +243,7 @@ async function loadPhotos() {
 
         const res = await fetch(API);
         const data = await res.json();
-
+        console.log(data[0]);
         if (!Array.isArray(data) || !data.length) return;
 
         // Detect new uploads

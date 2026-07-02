@@ -44,7 +44,7 @@ async function startCamera(camera = "environment") {
     video.style.transform = "scaleX(-1)";
 } else {
     console.log("REAR CAMERA");
-    video.style.transform = "scaleX(1)";
+    video.style.transform = "scaleX(-1)";
 }
 
         preview.style.display = "none";

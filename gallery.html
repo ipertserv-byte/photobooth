@@ -256,31 +256,18 @@ async function loadPhotos() {
     showFeatured(false);
 
 } else if (data.length > photos.length) {
-
     photos = data;
-
-    currentIndex = photos.length - 1;
-
+    currentIndex = 0;
     showFeatured(true);
-
 } else {
-
     photos = data;
-
 }
-
         counter.textContent = photos.length;
-
         renderFilmstrip();
-
     }
-
     catch(err){
-
         console.log(err);
-
     }
-
 }
 
 

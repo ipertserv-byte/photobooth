@@ -63,3 +63,23 @@ frontBtn.onclick = () => {
 
 // Start rear camera automatically
 startCamera("environment");
+
+captureBtn.onclick = () => {
+
+    const context = canvas.getContext("2d");
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    context.drawImage(video, 0, 0);
+
+    preview.src = canvas.toDataURL("image/jpeg");
+
+    video.style.display = "none";
+    preview.style.display = "block";
+
+    captureBtn.style.display = "none";
+    retakeBtn.style.display = "inline-block";
+    uploadBtn.style.display = "inline-block";
+
+};

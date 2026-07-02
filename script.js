@@ -122,7 +122,7 @@ captureBtn.addEventListener("click", () => {
 
         // rotate to fit landscape properly
         ctx.translate(canvas.width / 2, canvas.height / 2);
-        ctx.rotate(90 * Math.PI / 180);
+        ctx.rotate(180 * Math.PI / 360);
 
         ctx.drawImage(
             video,

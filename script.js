@@ -15,6 +15,7 @@ let currentStream = null;
 let currentCamera = "environment";
 let imageData = "";
 
+
 /* =========================
    START CAMERA
 ========================= */
@@ -39,8 +40,10 @@ async function startCamera(camera = "environment") {
         await video.play();
 
        if (camera === "user") {
+    console.log("SELFIE CAMERA");
     video.style.transform = "scaleX(-1)";
 } else {
+    console.log("REAR CAMERA");
     video.style.transform = "scaleX(1)";
 }
 

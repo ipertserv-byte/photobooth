@@ -54,3 +54,403 @@
 
 </body>
 </html>
+
+script.js
+const video = document.getElementById("video");
+const canvas = document.getElementById("canvas");
+const preview = document.getElementById("preview");
+
+const captureBtn = document.getElementById("captureBtn");
+const retakeBtn = document.getElementById("retakeBtn");
+const uploadBtn = document.getElementById("uploadBtn");
+
+const status = document.getElementById("status");
+const frontBtn = document.getElementById("frontBtn");
+const rearBtn = document.getElementById("rearBtn");
+
+let imageData = "";
+
+let currentCamera = "environment";
+let currentStream = null;
+
+async function startCamera() {
+
+    try {
+
+        if (currentStream) {
+            currentStream.getTracks().forEach(track => track.stop());
+        }
+
+        currentStream = await navigator.mediaDevices.getUserMedia({
+            video: {
+                facingMode: currentCamera
+            },
+            audio: false
+        });
+
+        video.srcObject = currentStream;
+
+    } catch (error) {
+
+        status.innerHTML = "❌ Camera access denied.";
+
+    }
+}
+
+captureBtn.addEventListener("click", () => {
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(video, 0, 0);
+
+    imageData = canvas.toDataURL("image/jpeg");
+
+    preview.src = imageData;
+
+    preview.style.display = "block";
+    video.style.display = "none";
+
+    captureBtn.style.display = "none";
+    retakeBtn.style.display = "inline-block";
+    uploadBtn.style.display = "inline-block";
+    
+
+    status.innerHTML = "📸 Photo captured!";
+
+});
+
+retakeBtn.addEventListener("click", async () => {
+
+    preview.style.display = "none";
+    video.style.display = "block";
+
+    captureBtn.style.display = "inline-block";
+    retakeBtn.style.display = "none";
+    uploadBtn.style.display = "none";
+    
+
+    status.innerHTML = "";
+
+    imageData = "";
+
+    await startCamera(); // ensures camera resets cleanly
+});
+
+uploadBtn.addEventListener("click", uploadPhoto);
+
+async function uploadPhoto() {
+
+    
+    if (!imageData) {
+        status.innerHTML = "⚠️ No photo to upload.";
+        return;
+    }
+
+    status.innerHTML = "☁️ Uploading...";
+
+    const byteString = atob(imageData.split(",")[1]);
+const mimeString = imageData.split(",")[0].split(":")[1].split(";")[0];
+
+const ab = new ArrayBuffer(byteString.length);
+const ia = new Uint8Array(ab);
+
+for (let i = 0; i < byteString.length; i++) {
+    ia[i] = byteString.charCodeAt(i);
+}
+
+const blob = new Blob([ab], { type: mimeString });
+
+    
+    const formData = new FormData();
+
+    formData.append("file", blob);
+    formData.append("upload_preset", "photobooth");
+
+    try {
+
+        const response = await fetch(
+            "https://api.cloudinary.com/v1_1/sfnq6tmp/image/upload",
+            {
+                method: "POST",
+                body: formData
+            }
+        );
+
+        const data = await response.json();
+
+        console.log(data);
+
+        if (data.secure_url) {
+
+    alert("Photo uploaded successfully!");
+status.innerHTML = "✅ Upload successful!";
+
+setTimeout(() => {
+    status.innerHTML = "";
+}, 2000);
+
+    preview.style.display = "none";
+    video.style.display = "block";
+
+    captureBtn.style.display = "inline-block";
+    retakeBtn.style.display = "none";
+    uploadBtn.style.display = "none";
+
+    imageData = "";
+
+    setTimeout(() => {
+    startCamera();
+}, 300);
+
+} else {
+
+    console.log("Upload failed:", data);
+status.innerHTML = "❌ Upload failed.";
+
+}
+
+    } catch (error) {
+
+        console.error(error);
+
+        status.innerHTML = "❌ Upload error.";
+
+    }
+
+}
+
+frontBtn.addEventListener("click", async () => {
+    currentCamera = "user";
+    await startCamera();
+});
+
+rearBtn.addEventListener("click", async () => {
+    currentCamera = "environment";
+    await startCamera();
+});
+
+startCamera();
+
+STYLE.CSS
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+    background:linear-gradient(135deg,#003366,#0056b3);
+    color:white;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.container{
+    width:95%;
+    max-width:500px;
+    background:rgba(255,255,255,.12);
+    padding:25px;
+    border-radius:20px;
+    text-align:center;
+    backdrop-filter:blur(10px);
+}
+
+h1{
+    font-size:38px;
+    margin-bottom:5px;
+}
+
+h2{
+    font-size:20px;
+    margin-bottom:20px;
+    font-weight:normal;
+}
+
+video,
+#preview{
+    width:100%;
+    border-radius:15px;
+    background:black;
+}
+
+.buttons{
+    display:flex;
+    justify-content:center;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-top:20px;
+}
+
+button{
+    padding:15px 25px;
+    border:none;
+    border-radius:50px;
+    font-size:18px;
+    cursor:pointer;
+    background:#ff9800;
+    color:white;
+    font-weight:bold;
+    transition:.3s;
+}
+
+button:hover{
+    background:#fb8c00;
+}
+
+#status{
+    margin-top:20px;
+    font-size:18px;
+}
+
+gallery.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>PERTSERV 15th Anniversary Live Gallery</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    background:#000;
+    color:#fff;
+    font-family:Arial,Helvetica,sans-serif;
+    overflow:hidden;
+}
+
+.header{
+    position:absolute;
+    top:20px;
+    left:0;
+    width:100%;
+    text-align:center;
+    z-index:10;
+}
+
+.header h1{
+    font-size:48px;
+}
+
+.header h2{
+    font-size:26px;
+    margin-top:8px;
+    color:#FFD700;
+}
+
+#slideshow{
+    width:100vw;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+#photo{
+    max-width:95vw;
+    max-height:90vh;
+    border-radius:20px;
+    box-shadow:0 0 30px rgba(255,255,255,.25);
+    transition:opacity .8s;
+}
+
+#loading{
+    font-size:30px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    <h1>PERTSERV</h1>
+    <h2>15th Anniversary Live Photobooth 📸</h2>
+</div>
+
+<div id="slideshow">
+    <div id="loading">Loading photos...</div>
+</div>
+
+<script>
+
+const API="https://photobooth-api.ipertserv.workers.dev";
+
+let photos=[];
+let index=0;
+
+async function loadPhotos(){
+
+    try{
+
+        const res=await fetch(API);
+        const data=await res.json();
+
+        if(Array.isArray(data) && data.length){
+
+            photos=data;
+
+            if(!document.getElementById("photo")){
+                showPhoto();
+            }
+
+        }
+
+    }catch(e){
+        console.log(e);
+    }
+
+}
+
+function showPhoto(){
+
+    if(!photos.length) return;
+
+    const slideshow=document.getElementById("slideshow");
+
+    slideshow.innerHTML="";
+
+    const img=document.createElement("img");
+
+    img.id="photo";
+
+    img.src=photos[index].url;
+
+    slideshow.appendChild(img);
+
+}
+
+function nextPhoto(){
+
+    if(!photos.length) return;
+
+    index++;
+
+    if(index>=photos.length){
+        index=0;
+    }
+
+    showPhoto();
+
+}
+
+loadPhotos();
+
+setInterval(loadPhotos,5000);
+
+setInterval(nextPhoto,3000);
+
+</script>
+
+</body>
+</html>

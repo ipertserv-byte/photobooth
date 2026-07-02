@@ -15,6 +15,10 @@ let currentStream = null;
 let currentCamera = "environment";
 let imageData = "";
 
+let captureMode = "single";
+let gridShots = [];
+const maxShots = 4;
+
 // =========================
 // START CAMERA
 // =========================
@@ -22,24 +26,19 @@ async function startCamera(camera = "environment") {
 
     try {
 
-        // stop previous stream
         if (currentStream) {
             currentStream.getTracks().forEach(track => track.stop());
         }
 
-        // start new stream
         currentStream = await navigator.mediaDevices.getUserMedia({
             video: {
-                facingMode: {
-                    ideal: camera
-                }
+                facingMode: { ideal: camera }
             },
             audio: false
         });
 
         currentCamera = camera;
 
-        // LIVE PREVIEW MIRROR ONLY FOR FRONT CAMERA
         if (camera === "user") {
             video.style.transform = "scaleX(-1)";
         } else {
@@ -49,7 +48,6 @@ async function startCamera(camera = "environment") {
         video.srcObject = currentStream;
         await video.play();
 
-        // reset UI
         preview.style.display = "none";
         video.style.display = "block";
 
@@ -68,16 +66,26 @@ async function startCamera(camera = "environment") {
 // =========================
 // CAMERA SWITCH
 // =========================
-rearBtn.addEventListener("click", () => {
-    startCamera("environment");
+rearBtn.addEventListener("click", () => startCamera("environment"));
+frontBtn.addEventListener("click", () => startCamera("user"));
+
+// =========================
+// MODE SWITCH
+// =========================
+document.getElementById("singleModeBtn").addEventListener("click", () => {
+    captureMode = "single";
+    gridShots = [];
+    status.textContent = "Single mode";
 });
 
-frontBtn.addEventListener("click", () => {
-    startCamera("user");
+document.getElementById("gridModeBtn").addEventListener("click", () => {
+    captureMode = "grid";
+    gridShots = [];
+    status.textContent = "Grid mode (4 shots)";
 });
 
 // =========================
-// CAPTURE (ONLY FRONT CAMERA IS MIRRORED)
+// CAPTURE
 // =========================
 captureBtn.addEventListener("click", () => {
 
@@ -91,7 +99,7 @@ captureBtn.addEventListener("click", () => {
 
     const ctx = canvas.getContext("2d");
 
-    // ONLY mirror when using FRONT camera
+    // mirror only front camera
     if (currentCamera === "user") {
         ctx.save();
         ctx.translate(canvas.width, 0);
@@ -104,7 +112,29 @@ captureBtn.addEventListener("click", () => {
 
     imageData = canvas.toDataURL("image/jpeg", 0.95);
 
-    // preview = same as output (NO transform)
+    // =========================
+    // GRID MODE LOGIC
+    // =========================
+    if (captureMode === "grid") {
+
+        gridShots.push(imageData);
+
+        status.textContent = `Shot ${gridShots.length} / ${maxShots}`;
+
+        preview.style.display = "none";
+        video.style.display = "block";
+
+        if (gridShots.length < maxShots) {
+            return;
+        }
+
+        buildGrid();
+        return;
+    }
+
+    // =========================
+    // SINGLE MODE
+    // =========================
     preview.src = imageData;
 
     preview.style.display = "block";
@@ -116,6 +146,67 @@ captureBtn.addEventListener("click", () => {
 
     status.textContent = "Photo captured.";
 });
+
+// =========================
+// BUILD GRID FUNCTION
+// =========================
+function buildGrid() {
+
+    const cols = 2;
+    const rows = 2;
+
+    const tempCanvas = document.createElement("canvas");
+    const ctx = tempCanvas.getContext("2d");
+
+    const img = new Image();
+    img.src = gridShots[0];
+
+    img.onload = () => {
+
+        tempCanvas.width = img.width * cols;
+        tempCanvas.height = img.height * rows;
+
+        let loaded = 0;
+
+        for (let i = 0; i < gridShots.length; i++) {
+
+            const image = new Image();
+            image.src = gridShots[i];
+
+            image.onload = () => {
+
+                const col = i % cols;
+                const row = Math.floor(i / cols);
+
+                ctx.drawImage(
+                    image,
+                    col * img.width,
+                    row * img.height,
+                    img.width,
+                    img.height
+                );
+
+                loaded++;
+
+                if (loaded === gridShots.length) {
+
+                    imageData = tempCanvas.toDataURL("image/jpeg", 0.95);
+
+                    preview.src = imageData;
+
+                    preview.style.display = "block";
+                    video.style.display = "none";
+
+                    captureBtn.style.display = "none";
+                    retakeBtn.style.display = "block";
+                    uploadBtn.style.display = "block";
+
+                    status.textContent = "Grid complete!";
+                }
+            };
+        }
+    };
+}
 
 // =========================
 // RETAKE
@@ -131,6 +222,7 @@ retakeBtn.addEventListener("click", () => {
     retakeBtn.style.display = "none";
     uploadBtn.style.display = "none";
 
+    gridShots = [];
     status.textContent = "";
 });
 
@@ -138,7 +230,6 @@ retakeBtn.addEventListener("click", () => {
 // UPLOAD (placeholder)
 // =========================
 uploadBtn.addEventListener("click", () => {
-
     alert("Cloudinary upload will be added next.");
 });
 

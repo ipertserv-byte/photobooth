@@ -1,77 +1,194 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PERTSERV Photobooth</title>
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
 
-<title>PERTSERV 15th Anniversary Live Photobooth</title>
+body {
+  background: #111;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+}
 
-<link rel="stylesheet" href="style.css">
+/* CAMERA SELECT */
+.camera-select {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 15px;
+  width: 100%;
+  max-width: 500px;
+}
 
+.camera-select button {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  background: #333;
+  color: white;
+  transition: 0.2s;
+}
+
+.camera-select button.active {
+  background: #00c3ff;
+  color: #000;
+  font-weight: bold;
+}
+
+/* VIDEO */
+video {
+  width: 100%;
+  max-width: 500px;
+  border-radius: 12px;
+  background: black;
+}
+
+/* CONTROLS */
+.controls {
+  margin-top: 15px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.controls button {
+  padding: 12px 16px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 15px;
+  background: #222;
+  color: white;
+}
+
+.controls button:hover {
+  background: #444;
+}
+
+/* PREVIEW */
+#preview {
+  margin-top: 15px;
+  max-width: 500px;
+  width: 100%;
+  border-radius: 12px;
+  display: none;
+}
+
+</style>
 </head>
 
 <body>
 
-<div class="container">
+<h2>Photobooth</h2>
 
-    <div class="header">
-        <h1>🎉 PERTSERV 15th Anniversary</h1>
-        <p>Live Photobooth</p>
-    </div>
-
-    <div class="camera-container">
-
-        <video
-    id="video"
-    autoplay
-    playsinline
-    muted
-    webkit-playsinline
-></video>
-
-        <canvas id="canvas" hidden></canvas>
-
-        <img
-            id="preview"
-            alt="Captured Photo"
-        >
-
-    </div>
-
-    <div class="camera-buttons">
-
-        <button id="rearBtn" class="primary-btn">📷 Rear Camera</button>
-<button id="frontBtn" class="primary-btn">🤳 Selfie Camera</button>
-
-<button id="singleModeBtn" class="secondary-btn">Single</button>
-<button id="gridModeBtn" class="secondary-btn">Grid (4 Shots)</button>
-
-    </div>
-    
-    <div class="action-buttons">
-
-        <button id="captureBtn">
-            📸 Capture
-        </button>
-
-        <button id="retakeBtn">
-            🔄 Retake
-        </button>
-
-        <button id="uploadBtn">
-            ☁️ Upload
-        </button>
-
-
-        
-    </div>
-
-    <div id="status"></div>
-
+<div class="camera-select">
+  <button id="rearBtn" class="active">Rear Camera</button>
+  <button id="frontBtn">Selfie Camera</button>
 </div>
 
-<script src="script.js"></script>
+<video id="video" autoplay playsinline></video>
+
+<canvas id="canvas" style="display:none;"></canvas>
+
+<img id="preview" />
+
+<div class="controls">
+  <button id="captureBtn">Capture</button>
+  <button id="retakeBtn">Retake</button>
+  <button id="uploadBtn">Upload</button>
+</div>
+
+<script>
+const video = document.getElementById("video");
+const canvas = document.getElementById("canvas");
+const preview = document.getElementById("preview");
+
+const rearBtn = document.getElementById("rearBtn");
+const frontBtn = document.getElementById("frontBtn");
+
+const captureBtn = document.getElementById("captureBtn");
+const retakeBtn = document.getElementById("retakeBtn");
+const uploadBtn = document.getElementById("uploadBtn");
+
+let currentStream;
+let currentCamera = "environment";
+let imageData = "";
+
+/* START CAMERA */
+async function startCamera(facingMode) {
+  if (currentStream) {
+    currentStream.getTracks().forEach(track => track.stop());
+  }
+
+  currentStream = await navigator.mediaDevices.getUserMedia({
+    video: { facingMode: facingMode },
+    audio: false
+  });
+
+  video.srcObject = currentStream;
+  currentCamera = facingMode;
+}
+
+/* CAMERA BUTTONS */
+rearBtn.onclick = () => {
+  startCamera("environment");
+  rearBtn.classList.add("active");
+  frontBtn.classList.remove("active");
+};
+
+frontBtn.onclick = () => {
+  startCamera("user");
+  frontBtn.classList.add("active");
+  rearBtn.classList.remove("active");
+};
+
+/* CAPTURE */
+captureBtn.onclick = () => {
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(video, 0, 0);
+
+  imageData = canvas.toDataURL("image/png");
+
+  preview.src = imageData;
+  preview.style.display = "block";
+};
+
+/* RETAKE */
+retakeBtn.onclick = () => {
+  preview.style.display = "none";
+  imageData = "";
+};
+
+/* UPLOAD (demo only) */
+uploadBtn.onclick = () => {
+  if (!imageData) return alert("No image captured!");
+
+  console.log("Uploading image...");
+  alert("Uploaded (demo)");
+};
+
+/* INIT */
+startCamera("environment");
+</script>
 
 </body>
 </html>

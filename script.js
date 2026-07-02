@@ -174,10 +174,6 @@ uploadBtn.addEventListener("click", async () => {
 });
 
 /* =========================
-   INIT
-========================= */
-
-/* =========================
    PHOTO MODE UI
 ========================= */
 
@@ -212,4 +208,9 @@ landscapeBtn.onclick = () => {
     portraitBtn.classList.remove("active");
 
 };
+
+/* =========================
+   INIT
+========================= */
+
 startCamera();

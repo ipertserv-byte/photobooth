@@ -38,6 +38,12 @@ async function startCamera(camera = "environment") {
         video.srcObject = currentStream;
         await video.play();
 
+       if (camera === "user") {
+    video.style.transform = "scaleX(-1)";
+} else {
+    video.style.transform = "scaleX(1)";
+}
+
         preview.style.display = "none";
         video.style.display = "block";
 

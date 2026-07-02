@@ -71,17 +71,12 @@ frontBtn.addEventListener("click", () => {
 ========================= */
 captureBtn.addEventListener("click", () => {
 
-    if (!video.videoWidth) {
-        status.textContent = "Camera is still loading...";
-        return;
-    }
-
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
 
     const ctx = canvas.getContext("2d");
 
-    // ALWAYS mirror once here (Option 1 rule)
+    // ALWAYS mirror (no conditions)
     ctx.translate(canvas.width, 0);
     ctx.scale(-1, 1);
 
@@ -91,8 +86,8 @@ captureBtn.addEventListener("click", () => {
 
     preview.src = imageData;
 
-    preview.style.display = "block";
     video.style.display = "none";
+    preview.style.display = "block";
 
     captureBtn.style.display = "none";
     retakeBtn.style.display = "block";

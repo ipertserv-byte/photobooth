@@ -88,21 +88,39 @@ frontBtn.addEventListener("click", () => {
 ========================= */
 captureBtn.addEventListener("click", () => {
 
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
+    const videoWidth = video.videoWidth;
+    const videoHeight = video.videoHeight;
+
+    // Set canvas based on orientation
+    if (orientation === "landscape") {
+        canvas.width = videoHeight;
+        canvas.height = videoWidth;
+    } else {
+        canvas.width = videoWidth;
+        canvas.height = videoHeight;
+    }
 
     const ctx = canvas.getContext("2d");
 
     // reset transforms
     ctx.setTransform(1, 0, 0, 1, 0, 0);
 
-    // mirror ONLY front camera (selfie mode)
+    // HANDLE MIRROR + ROTATION
+
     if (currentCamera === "user") {
+        // selfie camera (mirror fix)
         ctx.translate(canvas.width, 0);
         ctx.scale(-1, 1);
     }
 
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    if (orientation === "landscape") {
+        // rotate canvas for landscape
+        ctx.translate(canvas.width / 2, canvas.height / 2);
+        ctx.rotate(90 * Math.PI / 180);
+        ctx.drawImage(video, -videoWidth / 2, -videoHeight / 2);
+    } else {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    }
 
     imageData = canvas.toDataURL("image/jpeg", 0.95);
 

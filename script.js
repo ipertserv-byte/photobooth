@@ -53,17 +53,6 @@ async function startCamera(camera) {
     uploadBtn.style.display = "none";
 }
 
-        status.textContent = "";
-
-    }catch(err){
-
-        console.error(err);
-        status.textContent = "Unable to access camera.";
-
-    }
-
-}
-
 // Rear camera
 rearBtn.onclick = () => {
     startCamera("environment");

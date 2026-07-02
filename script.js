@@ -15,9 +15,9 @@ let currentStream = null;
 let currentCamera = "environment";
 let imageData = "";
 
-// =========================
-// START CAMERA
-// =========================
+/* =========================
+   START CAMERA
+========================= */
 async function startCamera(camera = "environment") {
 
     try {
@@ -36,14 +36,8 @@ async function startCamera(camera = "environment") {
         });
 
         currentCamera = camera;
-        if (camera === "user") {
-    video.style.transform = "scaleX(-1)";
-} else {
-    video.style.transform = "scaleX(1)";
-}
 
         video.srcObject = currentStream;
-
         await video.play();
 
         preview.style.display = "none";
@@ -56,17 +50,14 @@ async function startCamera(camera = "environment") {
         status.textContent = "";
 
     } catch (err) {
-
         console.error(err);
         status.textContent = "Unable to access camera.";
-
     }
-
 }
 
-// =========================
-// CAMERA SWITCH
-// =========================
+/* =========================
+   CAMERA SWITCH
+========================= */
 rearBtn.addEventListener("click", () => {
     startCamera("environment");
 });
@@ -75,9 +66,9 @@ frontBtn.addEventListener("click", () => {
     startCamera("user");
 });
 
-// =========================
-// CAPTURE
-// =========================
+/* =========================
+   CAPTURE (FIXED MIRROR LOGIC)
+========================= */
 captureBtn.addEventListener("click", () => {
 
     if (!video.videoWidth) {
@@ -90,47 +81,29 @@ captureBtn.addEventListener("click", () => {
 
     const ctx = canvas.getContext("2d");
 
-    if (currentCamera === "user") {
-
-    ctx.save();
-
+    // ALWAYS mirror once here (Option 1 rule)
     ctx.translate(canvas.width, 0);
     ctx.scale(-1, 1);
 
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-    ctx.restore();
-
-} else {
-
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-}
-
     imageData = canvas.toDataURL("image/jpeg", 0.95);
 
     preview.src = imageData;
 
-if (currentCamera === "user") {
-    preview.style.transform = "scaleX(-1)";
-} else {
-    preview.style.transform = "scaleX(1)";
-}
-
-preview.style.display = "block";
-video.style.display = "none";
+    preview.style.display = "block";
+    video.style.display = "none";
 
     captureBtn.style.display = "none";
     retakeBtn.style.display = "block";
     uploadBtn.style.display = "block";
 
     status.textContent = "Photo captured.";
-
 });
 
-// =========================
-// RETAKE
-// =========================
+/* =========================
+   RETAKE
+========================= */
 retakeBtn.addEventListener("click", () => {
 
     preview.src = "";
@@ -143,19 +116,16 @@ retakeBtn.addEventListener("click", () => {
     uploadBtn.style.display = "none";
 
     status.textContent = "";
-
 });
 
-// =========================
-// UPLOAD
-// =========================
+/* =========================
+   UPLOAD (placeholder)
+========================= */
 uploadBtn.addEventListener("click", () => {
-
     alert("Cloudinary upload will be added next.");
-
 });
 
-// =========================
-// START
-// =========================
+/* =========================
+   INIT
+========================= */
 startCamera();

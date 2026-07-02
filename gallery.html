@@ -240,7 +240,7 @@ const badge = document.getElementById("badge");
 
 async function loadPhotos() {
     try {
-        const res = await fetch(API + "?t=" + Date.now());
+        const res = await fetch(API);
         const data = await res.json();
 
         if (!Array.isArray(data) || data.length === 0) return;

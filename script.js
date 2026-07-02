@@ -14,10 +14,10 @@ const status = document.getElementById("status");
 let currentStream = null;
 let currentCamera = "environment";
 
-// Start camera
+// Start Camera
 async function startCamera(camera) {
 
-    // Stop previous camera
+    // Stop previous stream
     if (currentStream) {
         currentStream.getTracks().forEach(track => track.stop());
     }
@@ -49,6 +49,7 @@ async function startCamera(camera) {
 
     await video.play();
 
+    // Reset UI
     video.style.display = "block";
     preview.style.display = "none";
 
@@ -59,19 +60,20 @@ async function startCamera(camera) {
     status.textContent = "";
 }
 
-// Camera buttons
+// Rear Camera
 rearBtn.addEventListener("click", () => {
     startCamera("environment");
 });
 
+// Front Camera
 frontBtn.addEventListener("click", () => {
     startCamera("user");
 });
 
-// Capture photo
+// Capture
 captureBtn.addEventListener("click", () => {
 
-    if (video.videoWidth === 0) {
+    if (video.videoWidth === 0 || video.videoHeight === 0) {
         status.textContent = "Camera is still loading...";
         return;
     }
@@ -80,32 +82,38 @@ captureBtn.addEventListener("click", () => {
     canvas.height = video.videoHeight;
 
     const ctx = canvas.getContext("2d");
+
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
     preview.src = canvas.toDataURL("image/jpeg");
 
-    video.style.display = "none";
-    preview.style.display = "block";
+    preview.onload = () => {
 
-    captureBtn.style.display = "none";
-    retakeBtn.style.display = "inline-block";
-    uploadBtn.style.display = "inline-block";
+        video.style.display = "none";
+        preview.style.display = "block";
 
-    status.textContent = "Photo captured!";
+        captureBtn.style.display = "none";
+        retakeBtn.style.display = "inline-block";
+        uploadBtn.style.display = "inline-block";
+
+        status.textContent = "Photo captured!";
+    };
+
 });
 
 // Retake
-retakeBtn.addEventListener("click", () => {
+retakeBtn.addEventListener("click", async () => {
 
-    video.style.display = "block";
-    preview.style.display = "none";
+    await startCamera(currentCamera);
 
-    captureBtn.style.display = "inline-block";
-    retakeBtn.style.display = "none";
-    uploadBtn.style.display = "none";
-
-    status.textContent = "";
 });
 
-// Start camera
+// Upload (Coming Next)
+uploadBtn.addEventListener("click", () => {
+
+    alert("Upload feature will be added in the next step.");
+
+});
+
+// Start Camera
 startCamera(currentCamera);

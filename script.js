@@ -207,7 +207,7 @@ gridMode.onclick = () => {
    ORIENTATION UI
 ========================= */
 
-portraitBtn.onclick = () => {
+portraitBtn.onclick = async () => {
 
     orientation = "portrait";
 
@@ -216,9 +216,11 @@ portraitBtn.onclick = () => {
 
     console.log("Orientation:", orientation);
 
+    await startCamera(currentCamera);
+
 };
 
-landscapeBtn.onclick = () => {
+landscapeBtn.onclick = async () => {
 
     orientation = "landscape";
 
@@ -226,6 +228,8 @@ landscapeBtn.onclick = () => {
     portraitBtn.classList.remove("active");
 
     console.log("Orientation:", orientation);
+
+    await startCamera(currentCamera);
 
 };
 

@@ -1,1 +1,95 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,Helvetica,sans-serif;
+}
 
+body{
+    background:#eef3f9;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+    padding:20px;
+}
+
+.container{
+    width:100%;
+    max-width:520px;
+    background:#fff;
+    border-radius:22px;
+    padding:20px;
+    box-shadow:0 10px 35px rgba(0,0,0,.15);
+}
+
+.header{
+    text-align:center;
+    margin-bottom:18px;
+}
+
+.header h1{
+    color:#083b7c;
+}
+
+.header p{
+    color:#555;
+}
+
+.camera-buttons,
+.action-buttons{
+    display:flex;
+    gap:10px;
+    margin-bottom:14px;
+}
+
+button{
+    flex:1;
+    border:none;
+    border-radius:12px;
+    padding:15px;
+    font-size:17px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+#rearBtn,#frontBtn{
+    background:#083b7c;
+    color:white;
+}
+
+#captureBtn{
+    background:#1d72ff;
+    color:white;
+}
+
+#retakeBtn{
+    background:#ffb300;
+    display:none;
+}
+
+#uploadBtn{
+    background:#2cab45;
+    color:white;
+    display:none;
+}
+
+.camera-container{
+    width:100%;
+    aspect-ratio:3/4;
+    background:black;
+    border-radius:18px;
+    overflow:hidden;
+    margin-bottom:20px;
+    position:relative;
+}
+
+video, #preview{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+#preview{
+    display:none;
+}

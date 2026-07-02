@@ -1,1 +1,56 @@
-<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>PERTSERV Photobooth</title> <link rel="stylesheet" href="style.css"> </head> <body> <div class="container"> <h1>PERTSERV</h1> <h2>15th Anniversary Photobooth 🎉</h2> <div class="camera-select"> <button id="frontBtn">🤳 Selfie</button> <button id="rearBtn">📷 Rear Camera</button> </div> <video id="video" autoplay playsinline></video> <canvas id="canvas" style="display:none;"></canvas> <img id="preview" style="display:none;"> <div class="buttons"> <button id="captureBtn"> 📸 Take Photo </button> <button id="retakeBtn" style="display:none;"> 🔄 Retake </button> <button id="uploadBtn" style="display:none;"> ☁️ Upload </button> </div> <p id="status"></p> </div> <script src="script.js"></script> </body> </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>PERTSERV Photobooth</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>PERTSERV</h1>
+    <h2>15th Anniversary Photobooth 🎉</h2>
+
+    <video id="video" autoplay playsinline></video>
+
+    <canvas id="canvas" style="display:none;"></canvas>
+
+    <img id="preview" style="display:none;">
+
+    <div class="camera-select">
+        <button id="frontBtn">🤳 Selfie</button>
+        <button id="rearBtn">📷 Rear Camera</button>
+    </div>
+
+    
+    <div class="buttons">
+
+        <button id="captureBtn">
+            📸 Take Photo
+        </button>
+
+        <button id="retakeBtn" style="display:none;">
+            🔄 Retake
+        </button>
+
+        <button id="uploadBtn" style="display:none;">
+            ☁️ Upload
+        </button>
+
+    </div>
+
+    <p id="status"></p>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>

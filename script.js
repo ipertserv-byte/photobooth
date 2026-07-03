@@ -9,22 +9,20 @@ const captureBtn = document.getElementById("captureBtn");
 const retakeBtn = document.getElementById("retakeBtn");
 const uploadBtn = document.getElementById("uploadBtn");
 
-const portraitBtn = document.getElementById("portraitBtn");
-const landscapeBtn = document.getElementById("landscapeBtn");
-
 const status = document.getElementById("status");
 
 let currentStream = null;
-let currentCamera = "environment";
+let currentCamera = "user"; // start with selfie or "environment"
 let imageData = "";
 
 /* =========================
-   CAMERA START
+   START CAMERA (AUTO ON LOAD)
 ========================= */
-async function startCamera(camera = "environment") {
+async function startCamera(camera = "user") {
 
     try {
 
+        // stop previous stream safely
         if (currentStream) {
             currentStream.getTracks().forEach(track => track.stop());
         }
@@ -41,6 +39,7 @@ async function startCamera(camera = "environment") {
         video.srcObject = currentStream;
         await video.play();
 
+        // mirror selfie only
         if (currentCamera === "user") {
             video.style.transform = "scaleX(-1)";
         } else {
@@ -58,9 +57,17 @@ async function startCamera(camera = "environment") {
 
     } catch (err) {
         console.error(err);
-        status.textContent = "Unable to access camera.";
+        status.textContent = "Camera permission denied or unavailable.";
     }
 }
+
+/* =========================
+   INIT CAMERA ON PAGE LOAD
+   (THIS TRIGGERS PROMPT)
+========================= */
+window.addEventListener("load", () => {
+    startCamera("user"); // change to "environment" if you want rear first
+});
 
 /* =========================
    SWITCH CAMERA
@@ -86,6 +93,7 @@ captureBtn.addEventListener("click", () => {
 
     const ctx = canvas.getContext("2d");
 
+    // mirror fix for selfie
     if (currentCamera === "user") {
         ctx.translate(canvas.width, 0);
         ctx.scale(-1, 1);
@@ -125,7 +133,7 @@ retakeBtn.addEventListener("click", () => {
 });
 
 /* =========================
-   UPLOAD
+   UPLOAD (CLOUDINARY)
 ========================= */
 uploadBtn.addEventListener("click", async () => {
 
@@ -165,25 +173,3 @@ uploadBtn.addEventListener("click", async () => {
     }
 
 });
-
-/* =========================
-   ORIENTATION BUTTONS (UI ONLY)
-========================= */
-
-portraitBtn.onclick = () => {
-    console.log("Portrait mode selected");
-};
-
-landscapeBtn.onclick = () => {
-    console.log("Landscape mode selected");
-};
-
-/* =========================
-   INIT
-========================= */
-window.addEventListener("beforeunload", () => {
-    if (currentStream) {
-        currentStream.getTracks().forEach(track => track.stop());
-    }
-});
-startCamera();

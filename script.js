@@ -181,5 +181,9 @@ landscapeBtn.onclick = () => {
 /* =========================
    INIT
 ========================= */
-
+window.addEventListener("beforeunload", () => {
+    if (currentStream) {
+        currentStream.getTracks().forEach(track => track.stop());
+    }
+});
 startCamera();

@@ -20,21 +20,29 @@ const status = document.getElementById("status");
 const singleModeBtn = document.getElementById("singleMode");
 const gridModeBtn = document.getElementById("gridMode");
 
-singleModeBtn.addEventListener("click", () => {
-  gridModeActive = false;
-  gridImages = [];
+singleModeBtn.onclick = () => {
 
-  singleModeBtn.classList.add("active");
-  gridModeBtn.classList.remove("active");
-});
+    photoMode = "single";
+    gridMode = false;
+    gridImages = [];
 
-gridModeBtn.addEventListener("click", () => {
-  gridModeActive = true;
-  gridImages = [];
+    singleModeBtn.classList.add("active");
+    gridModeBtn.classList.remove("active");
 
-  gridModeBtn.classList.add("active");
-  singleModeBtn.classList.remove("active");
-});
+    console.log("Photo Mode:", photoMode);
+};
+
+gridModeBtn.onclick = () => {
+
+    photoMode = "grid";
+    gridMode = true;
+    gridImages = [];
+
+    gridModeBtn.classList.add("active");
+    singleModeBtn.classList.remove("active");
+
+    console.log("Photo Mode:", photoMode);
+};
 
 let currentStream = null;
 let currentCamera = "environment";

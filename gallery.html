@@ -25,22 +25,24 @@ body{
     position:absolute;
     top:0;
     left:0;
-    width:100%;
+
+    width:calc(100% - 280px); /* subtract sidebar width */
     height:80px;
 
     display:flex;
     flex-direction:column;
     justify-content:center;
-    align-items:center;
 
-    text-align:center;
+    padding-left:30px;
+
+    text-align:left;
+
+    z-index:100;
 
     background:rgba(255,255,255,0.85);
     backdrop-filter:blur(8px);
 
     border-bottom:3px solid #1d72ff;
-
-    z-index:100;
 }
 
 .header h1{

@@ -9,72 +9,17 @@ const captureBtn = document.getElementById("captureBtn");
 const retakeBtn = document.getElementById("retakeBtn");
 const uploadBtn = document.getElementById("uploadBtn");
 
-const singleMode = document.getElementById("singleMode");
-const gridMode = document.getElementById("gridMode");
-
 const portraitBtn = document.getElementById("portraitBtn");
 const landscapeBtn = document.getElementById("landscapeBtn");
 
 const status = document.getElementById("status");
 
-const singleModeBtn = document.getElementById("singleMode");
-const gridModeBtn = document.getElementById("gridMode");
-
-singleModeBtn.onclick = () => {
-
-    photoMode = "single";
-    gridMode = false;
-    gridImages = [];
-
-    singleModeBtn.classList.add("active");
-    gridModeBtn.classList.remove("active");
-
-    console.log("Photo Mode:", photoMode);
-};
-
-gridModeBtn.onclick = () => {
-
-    photoMode = "grid";
-    gridMode = true;
-    gridImages = [];
-
-    gridModeBtn.classList.add("active");
-    singleModeBtn.classList.remove("active");
-
-    console.log("Photo Mode:", photoMode);
-};
-
 let currentStream = null;
 let currentCamera = "environment";
 let imageData = "";
-let gridMode = false;
-let gridImages = [];
-
-
-function fixLandscapeVideo() {
-
-    const isLandscape = window.innerWidth > window.innerHeight;
-
-    if (!isLandscape) return;
-
-    // DO NOT decide logic here
-    // ONLY restore current state safely
-
-    if (currentCamera === "user") {
-        video.style.transform = "scaleX(-1)";
-    } else {
-        video.style.transform = "none";
-    }
-}
-
-
-// New states
-let photoMode = "single";          // single | grid
-let orientation = "portrait";      // portrait | landscape
-
 
 /* =========================
-   START CAMERA
+   CAMERA START
 ========================= */
 async function startCamera(camera = "environment") {
 
@@ -92,20 +37,16 @@ async function startCamera(camera = "environment") {
         });
 
         currentCamera = camera;
-applyCameraTransform();
+
         video.srcObject = currentStream;
         await video.play();
 
-        function applyCameraTransform() {
-    if (currentCamera === "user") {
-        video.style.transform = "scaleX(-1)";
-    } else {
-        video.style.transform = "none";
-    }
-}
-       applyCameraTransform();
+        if (currentCamera === "user") {
+            video.style.transform = "scaleX(-1)";
+        } else {
+            video.style.transform = "none";
+        }
 
-       
         preview.style.display = "none";
         video.style.display = "block";
 
@@ -132,25 +73,8 @@ frontBtn.addEventListener("click", () => {
     startCamera("user");
 });
 
-function getDeviceRotation() {
-
-    // Modern browsers
-    if (screen.orientation && typeof screen.orientation.angle === "number") {
-        return screen.orientation.angle;
-    }
-
-    // iOS Safari
-    if (typeof window.orientation === "number") {
-        return window.orientation;
-    }
-
-    return 0;
-}
-
-
-
 /* =========================
-   CAPTURE (FIXED — NO BUGS)
+   CAPTURE
 ========================= */
 captureBtn.addEventListener("click", () => {
 
@@ -162,33 +86,6 @@ captureBtn.addEventListener("click", () => {
 
     const ctx = canvas.getContext("2d");
 
-    // reset transforms
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-
-const angle = getDeviceRotation();
-
-if (angle === 90 || angle === -90 || angle === 270) {
-
-    canvas.width = videoHeight;
-    canvas.height = videoWidth;
-
-    ctx.translate(canvas.width / 2, canvas.height / 2);
-    ctx.rotate(angle > 0 ? Math.PI / 2 : -Math.PI / 2);
-
-    if (currentCamera === "user") {
-        ctx.scale(-1, 1);
-    }
-
-    ctx.drawImage(
-        video,
-        -videoWidth / 2,
-        -videoHeight / 2,
-        videoWidth,
-        videoHeight
-    );
-
-} else {
-
     if (currentCamera === "user") {
         ctx.translate(canvas.width, 0);
         ctx.scale(-1, 1);
@@ -196,8 +93,6 @@ if (angle === 90 || angle === -90 || angle === 270) {
 
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-}
-    
     imageData = canvas.toDataURL("image/jpeg", 0.95);
 
     preview.src = imageData;
@@ -230,7 +125,7 @@ retakeBtn.addEventListener("click", () => {
 });
 
 /* =========================
-   UPLOAD (placeholder)
+   UPLOAD
 ========================= */
 uploadBtn.addEventListener("click", async () => {
 
@@ -272,59 +167,15 @@ uploadBtn.addEventListener("click", async () => {
 });
 
 /* =========================
-   PHOTO MODE UI
+   ORIENTATION BUTTONS (UI ONLY)
 ========================= */
 
-singleMode.onclick = () => {
-
-    photoMode = "single";
-
-    singleMode.classList.add("active");
-    gridMode.classList.remove("active");
-
-    console.log("Photo Mode:", photoMode);
-
+portraitBtn.onclick = () => {
+    console.log("Portrait mode selected");
 };
 
-gridMode.onclick = () => {
-
-    photoMode = "grid";
-
-    gridMode.classList.add("active");
-    singleMode.classList.remove("active");
-
-    console.log("Photo Mode:", photoMode);
-
-};
-
-/* =========================
-   ORIENTATION UI
-========================= */
-
-portraitBtn.onclick = async () => {
-
-    orientation = "portrait";
-
-    portraitBtn.classList.add("active");
-    landscapeBtn.classList.remove("active");
-
-    console.log("Orientation:", orientation);
-
-    await startCamera(currentCamera);
-
-};
-
-landscapeBtn.onclick = async () => {
-
-    orientation = "landscape";
-
-    landscapeBtn.classList.add("active");
-    portraitBtn.classList.remove("active");
-
-    console.log("Orientation:", orientation);
-
-    await startCamera(currentCamera);
-
+landscapeBtn.onclick = () => {
+    console.log("Landscape mode selected");
 };
 
 /* =========================
@@ -332,7 +183,3 @@ landscapeBtn.onclick = async () => {
 ========================= */
 
 startCamera();
-
-
-window.addEventListener("resize", fixLandscapeVideo);
-window.addEventListener("orientationchange", fixLandscapeVideo);

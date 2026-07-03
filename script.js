@@ -20,6 +20,9 @@ const status = document.getElementById("status");
 let currentStream = null;
 let currentCamera = "environment";
 let imageData = "";
+let gridMode = false;
+let gridImages = [];
+
 
 function fixLandscapeVideo() {
 

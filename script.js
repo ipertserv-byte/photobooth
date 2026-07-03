@@ -17,6 +17,25 @@ const landscapeBtn = document.getElementById("landscapeBtn");
 
 const status = document.getElementById("status");
 
+const singleModeBtn = document.getElementById("singleMode");
+const gridModeBtn = document.getElementById("gridMode");
+
+singleModeBtn.addEventListener("click", () => {
+  gridModeActive = false;
+  gridImages = [];
+
+  singleModeBtn.classList.add("active");
+  gridModeBtn.classList.remove("active");
+});
+
+gridModeBtn.addEventListener("click", () => {
+  gridModeActive = true;
+  gridImages = [];
+
+  gridModeBtn.classList.add("active");
+  singleModeBtn.classList.remove("active");
+});
+
 let currentStream = null;
 let currentCamera = "environment";
 let imageData = "";

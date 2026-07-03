@@ -102,6 +102,23 @@ frontBtn.addEventListener("click", () => {
     startCamera("user");
 });
 
+function getDeviceRotation() {
+
+    // Modern browsers
+    if (screen.orientation && typeof screen.orientation.angle === "number") {
+        return screen.orientation.angle;
+    }
+
+    // iOS Safari
+    if (typeof window.orientation === "number") {
+        return window.orientation;
+    }
+
+    return 0;
+}
+
+
+
 /* =========================
    CAPTURE (FIXED — NO BUGS)
 ========================= */
@@ -118,13 +135,38 @@ captureBtn.addEventListener("click", () => {
     // reset transforms
     ctx.setTransform(1, 0, 0, 1, 0, 0);
 
-    // selfie mirror only
+const angle = getDeviceRotation();
+
+if (angle === 90 || angle === -90 || angle === 270) {
+
+    canvas.width = videoHeight;
+    canvas.height = videoWidth;
+
+    ctx.translate(canvas.width / 2, canvas.height / 2);
+    ctx.rotate(angle > 0 ? Math.PI / 2 : -Math.PI / 2);
+
+    if (currentCamera === "user") {
+        ctx.scale(-1, 1);
+    }
+
+    ctx.drawImage(
+        video,
+        -videoWidth / 2,
+        -videoHeight / 2,
+        videoWidth,
+        videoHeight
+    );
+
+} else {
+
     if (currentCamera === "user") {
         ctx.translate(canvas.width, 0);
         ctx.scale(-1, 1);
     }
-    //draw video as-is
+
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+}
     
     imageData = canvas.toDataURL("image/jpeg", 0.95);
 

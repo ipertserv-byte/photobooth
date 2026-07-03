@@ -12,11 +12,45 @@ const uploadBtn = document.getElementById("uploadBtn");
 const portraitBtn = document.getElementById("portraitBtn");
 const landscapeBtn = document.getElementById("landscapeBtn");
 
+const singleMode = document.getElementById("singleMode");
+const gridMode = document.getElementById("gridMode");
+
 const status = document.getElementById("status");
 
+/* =========================
+   STATE (IMPORTANT ORDER FIX)
+========================= */
 let currentStream = null;
 let currentCamera = "environment";
 let imageData = "";
+
+let photoMode = "single";   // "single" | "grid"
+let gridImages = [];
+
+/* =========================
+   MODE SWITCH
+========================= */
+singleMode.onclick = () => {
+
+    photoMode = "single";
+    gridImages = [];
+
+    singleMode.classList.add("active");
+    gridMode.classList.remove("active");
+
+    console.log("Mode:", photoMode);
+};
+
+gridMode.onclick = () => {
+
+    photoMode = "grid";
+    gridImages = [];
+
+    gridMode.classList.add("active");
+    singleMode.classList.remove("active");
+
+    console.log("Mode:", photoMode);
+};
 
 /* =========================
    CAMERA START
@@ -74,9 +108,27 @@ frontBtn.addEventListener("click", () => {
 });
 
 /* =========================
-   CAPTURE
+   CAPTURE (GRID FIX INSIDE)
 ========================= */
 captureBtn.addEventListener("click", () => {
+
+    /* ================= GRID MODE ================= */
+    if (photoMode === "grid") {
+
+        const image = canvas.toDataURL("image/jpeg", 0.95);
+        gridImages.push(image);
+
+        status.textContent = `Grid shot ${gridImages.length}/4`;
+
+        if (gridImages.length === 4) {
+            createGridCollage();
+            gridImages = [];
+        }
+
+        return;
+    }
+
+    /* ================= SINGLE MODE ================= */
 
     const videoWidth = video.videoWidth;
     const videoHeight = video.videoHeight;
@@ -163,13 +215,11 @@ uploadBtn.addEventListener("click", async () => {
         console.error(err);
         status.textContent = "Upload error.";
     }
-
 });
 
 /* =========================
-   ORIENTATION BUTTONS (UI ONLY)
+   ORIENTATION UI
 ========================= */
-
 portraitBtn.onclick = () => {
     console.log("Portrait mode selected");
 };
@@ -179,7 +229,48 @@ landscapeBtn.onclick = () => {
 };
 
 /* =========================
+   GRID COLLAGE FUNCTION
+========================= */
+function createGridCollage() {
+
+    const ctx = canvas.getContext("2d");
+    const size = canvas.width / 2;
+
+    const imgs = gridImages.map(src => {
+        const img = new Image();
+        img.src = src;
+        return img;
+    });
+
+    Promise.all(imgs.map(img =>
+        new Promise(resolve => (img.onload = resolve))
+    )).then(() => {
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        ctx.drawImage(imgs[0], 0, 0, size, size);
+        ctx.drawImage(imgs[1], size, 0, size, size);
+        ctx.drawImage(imgs[2], 0, size, size, size);
+        ctx.drawImage(imgs[3], size, size, size, size);
+
+        const finalImage = canvas.toDataURL("image/jpeg", 0.95);
+
+        preview.src = finalImage;
+
+        video.style.display = "none";
+        preview.style.display = "block";
+
+        captureBtn.style.display = "none";
+        retakeBtn.style.display = "block";
+        uploadBtn.style.display = "block";
+
+        imageData = finalImage;
+
+        status.textContent = "Grid ready for upload!";
+    });
+}
+
+/* =========================
    INIT
 ========================= */
-
 startCamera();

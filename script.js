@@ -123,31 +123,9 @@ captureBtn.addEventListener("click", () => {
         ctx.translate(canvas.width, 0);
         ctx.scale(-1, 1);
     }
-
-    // Draw according to selected orientation
-if (orientation === "portrait") {
-
+    //draw video as-is
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-} else {
-
-    // Rotate canvas 90° clockwise
-    canvas.width = videoHeight;
-    canvas.height = videoWidth;
-
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-
-    if (currentCamera === "user") {
-        ctx.translate(canvas.width, 0);
-        ctx.scale(-1, 1);
-    }
-
-    ctx.translate(canvas.width, 0);
-    ctx.rotate(Math.PI / 2);
-
-    ctx.drawImage(video, 0, -videoHeight, videoWidth, videoHeight);
-}
-
+    
     imageData = canvas.toDataURL("image/jpeg", 0.95);
 
     preview.src = imageData;

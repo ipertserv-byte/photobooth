@@ -1,372 +1,155 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>PERTSERV Live Gallery</title>
 
 <style>
-
 *{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial,Helvetica,sans-serif;
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
 }
 
 body{
-background:#000;
-color:white;
-overflow:hidden;
+    background:#000;
+    color:#fff;
+    font-family:Arial,Helvetica,sans-serif;
+    overflow:hidden;
 }
 
+/* HEADER */
 .header{
-
-position:fixed;
-top:20px;
-left:0;
-width:100%;
-text-align:center;
-z-index:100;
-
+    position:absolute;
+    top:20px;
+    left:0;
+    width:100%;
+    text-align:center;
+    z-index:10;
 }
 
 .header h1{
-
-font-size:48px;
-
+    font-size:48px;
 }
 
 .header h2{
-
-font-size:22px;
-color:#FFD700;
-
+    font-size:22px;
+    color:#FFD700;
 }
 
-#gallery{
-
-height:100vh;
-display:flex;
-flex-direction:column;
-
+/* SLIDESHOW */
+#slideshow{
+    width:100vw;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
 }
 
-#featured{
-
-flex:1;
-display:flex;
-justify-content:center;
-align-items:center;
-position:relative;
-padding-top:100px;
-
+#photo{
+    max-width:95vw;
+    max-height:90vh;
+    border-radius:20px;
+    box-shadow:0 0 30px rgba(255,255,255,.25);
+    transition:opacity 0.5s ease;
 }
 
-#featuredPhoto{
-
-max-width:90%;
-max-height:70vh;
-
-border-radius:20px;
-
-box-shadow:0 0 35px rgba(255,255,255,.25);
-
-transition:.5s;
-
+#loading{
+    font-size:24px;
+    color:#fff;
 }
-
-#newBadge{
-
-position:absolute;
-
-top:120px;
-
-left:50%;
-
-transform:translateX(-50%);
-
-background:#ff3b30;
-
-padding:16px 32px;
-
-border-radius:40px;
-
-font-size:30px;
-
-font-weight:bold;
-
-display:none;
-
-}
-
-#recent{
-
-height:220px;
-
-background:#111;
-
-border-top:3px solid gold;
-
-padding:15px;
-
-overflow-y:auto;
-
-}
-
-#recent h3{
-
-color:gold;
-
-margin-bottom:15px;
-
-}
-
-.thumb{
-
-display:flex;
-
-align-items:center;
-
-gap:15px;
-
-margin-bottom:10px;
-
-padding:8px;
-
-border-radius:12px;
-
-cursor:pointer;
-
-transition:.25s;
-
-}
-
-.thumb img{
-
-width:120px;
-
-height:90px;
-
-object-fit:cover;
-
-border-radius:10px;
-
-}
-
-.thumb.active{
-
-outline:3px solid gold;
-
-background:#222;
-
-}
-
-.thumb span{
-
-font-size:18px;
-
-}
-
 </style>
-
 </head>
 
 <body>
 
 <div class="header">
-
-<h1>PERTSERV</h1>
-
-<h2>15th Anniversary Live Gallery 📸</h2>
-
+    <h1>PERTSERV</h1>
+    <h2>15th Anniversary Live Photobooth 📸</h2>
 </div>
 
-<div id="gallery">
-
-<div id="featured">
-
-<div id="newBadge">
-
-🎉 NEW PHOTO!
-
-</div>
-
-<img id="featuredPhoto">
-
-</div>
-
-<div id="recent">
-
-<h3>Recent Uploads</h3>
-
-<div id="thumbnailList"></div>
-
-</div>
-
+<div id="slideshow">
+    <div id="loading">Loading photos...</div>
 </div>
 
 <script>
 
-const API="https://photobooth-api.ipertserv.workers.dev";
+const API = "https://photobooth-api.ipertserv.workers.dev";
 
-let photos=[];
+let photos = [];
+let index = 0;
 
-let currentIndex=0;
+/* =========================
+   LOAD PHOTOS FROM WORKER
+========================= */
+async function loadPhotos() {
 
-let slideshowTimer;
-
-let refreshTimer;
-
-let paused=false;
-
-// PART 2 CONTINUES HERE...
-
-  /* =====================================
-   LOAD PHOTOS FROM API
-===================================== */
-
-async function loadPhotos(){
-
-    try{
-
+    try {
         const res = await fetch(API);
         const data = await res.json();
 
-        if(!Array.isArray(data) || data.length===0){
-            return;
+        if (Array.isArray(data) && data.length > 0) {
+
+            photos = data;
+
+            // keep index safe
+            if (index >= photos.length) {
+                index = 0;
+            }
+
+            showPhoto();
         }
 
-        // First load
-        if(photos.length===0){
-
-            photos=data;
-
-            buildThumbnailList();
-
-            showFeatured(currentIndex);
-
-            startSlideshow();
-
-            return;
-        }
-
-        // Detect new upload
-        if(data.length>photos.length){
-
-            const oldIndex=currentIndex;
-
-            photos=data;
-
-            buildThumbnailList();
-
-            spotlightNewPhoto(oldIndex);
-
-            return;
-        }
-
-        photos=data;
-
-        buildThumbnailList();
-
+    } catch (err) {
+        console.error("Failed to load photos:", err);
     }
-
-    catch(err){
-
-        console.error(err);
-
-    }
-
 }
 
-/* =====================================
-   FEATURED PHOTO
-===================================== */
+/* =========================
+   SHOW CURRENT PHOTO
+========================= */
+function showPhoto() {
 
-function showFeatured(i){
+    const slideshow = document.getElementById("slideshow");
 
-    currentIndex=i;
+    if (!photos.length) return;
 
-    const featured=document.getElementById("featuredPhoto");
+    slideshow.innerHTML = "";
 
-    featured.src=photos[i].url;
+    const img = document.createElement("img");
+    img.id = "photo";
+    img.src = photos[index].url;
 
-    updateActiveThumbnail();
-
+    slideshow.appendChild(img);
 }
 
-/* =====================================
-   BUILD THUMBNAILS
-===================================== */
+/* =========================
+   NEXT PHOTO (SLIDESHOW)
+========================= */
+function nextPhoto() {
 
-function buildThumbnailList(){
+    if (!photos.length) return;
 
-    const list=document.getElementById("thumbnailList");
-
-    list.innerHTML="";
-
-    photos.forEach((photo,index)=>{
-
-        const row=document.createElement("div");
-
-        row.className="thumb";
-
-        row.dataset.index=index;
-
-        row.innerHTML=`
-            <img src="${photo.url}">
-            <span>Photo ${photos.length-index}</span>
-        `;
-
-        row.onclick=()=>{
-
-            stopSlideshow();
-
-            showFeatured(index);
-
-            startSlideshow();
-
-        };
-
-        list.appendChild(row);
-
-    });
-
-    updateActiveThumbnail();
-
+    index = (index + 1) % photos.length;
+    showPhoto();
 }
 
-/* =====================================
-   ACTIVE THUMBNAIL
-===================================== */
+/* =========================
+   INIT
+========================= */
+loadPhotos();
 
-function updateActiveThumbnail(){
+/* refresh gallery from cloud */
+setInterval(loadPhotos, 5000);
 
-    document.querySelectorAll(".thumb").forEach((thumb,i)=>{
-
-        thumb.classList.toggle("active",i===currentIndex);
-
-        if(i===currentIndex){
-
-            thumb.scrollIntoView({
-
-                behavior:"smooth",
-
-                block:"nearest"
-
-            });
-
-        }
-
-    });
-
-}  
+/* slideshow rotation */
+setInterval(nextPhoto, 4000);
 
 </script>
 
 </body>
-
 </html>
+
+THIS IS MY GALLERY I DO HAVE INDEX TOO
